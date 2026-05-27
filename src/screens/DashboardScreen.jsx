@@ -96,6 +96,7 @@ export default function DashboardScreen({ user }) {
       {/* Prominent weekly result banner */}
       <WeeklyResultBanner
         activeTicket={activeTicket === undefined ? null : activeTicket}
+        weeklyTicket={weeklyTicket}
         pipelineRunning={pipelineRunning}
       />
 

@@ -54,7 +54,22 @@ router.get('/latest-draw', async (req, res) => {
 
     res.json(draw)
   } catch (err) {
-    console.error('[/api/latest-draw]', err.message)
+    console.error('[/api/latest-draw] Scrape failed:', err.message)
+
+    // Fallback: serve the most recent draw stored in Firestore
+    if (isFirestoreReady()) {
+      try {
+        const draws = await getRecentDraws(1)
+        if (draws.length > 0) {
+          console.warn('[/api/latest-draw] Serving most recent Firestore draw as fallback')
+          drawCache.set('latest', draws[0])
+          return res.json({ ...draws[0], stale: true })
+        }
+      } catch (fbErr) {
+        console.error('[/api/latest-draw] Firestore fallback failed:', fbErr.message)
+      }
+    }
+
     res.status(503).json({ error: 'SCRAPE_FAILED', message: err.message })
   }
 })

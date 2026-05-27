@@ -6,8 +6,10 @@ import './dashboard.css'
  *
  * States: PROCESSING → PENDING DRAW → WIN → LOSS
  */
-export default function WeeklyResultBanner({ activeTicket, pipelineRunning }) {
-  const { cls, label, sub } = deriveState(activeTicket, pipelineRunning)
+export default function WeeklyResultBanner({ activeTicket, weeklyTicket, pipelineRunning }) {
+  // Fall back to weeklyTicket so the banner reflects the active weekly definition
+  // even when the corresponding tickets-collection entry is missing or unlinked.
+  const { cls, label, sub } = deriveState(activeTicket ?? weeklyTicket, pipelineRunning)
 
   return (
     <div className={`weekly-banner weekly-banner-${cls}`}>

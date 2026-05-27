@@ -19,7 +19,7 @@ async function get(url) {
   // encoding pipeline (cheerio infers charset from the <meta> tag).
   const { data, headers } = await axios.get(url, {
     headers:      REQUEST_HEADERS,
-    timeout:      12_000,
+    timeout:      20_000,
     responseType: 'arraybuffer',
     decompress:   true,
   })
