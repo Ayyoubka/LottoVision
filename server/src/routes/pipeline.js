@@ -9,6 +9,7 @@ import { Router }               from 'express'
 import { verifyToken }          from '../middleware/verifyToken.js'
 import { runLatestPipeline }    from '../services/drawPipelineService.js'
 import { getLastPipelineRun }   from '../repositories/pipelineRepository.js'
+import { getPipelineHistory }   from '../repositories/pipelineLogRepository.js'
 
 const router = Router()
 router.use(verifyToken)
@@ -60,6 +61,24 @@ router.get('/status', async (req, res) => {
     res.json({ status })
   } catch (err) {
     console.error(`[GET /api/pipeline/status] ${err.message}`)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ── GET /api/pipeline/history ─────────────────────────────────────────────
+/**
+ * Returns the most recent pipeline run logs (newest first).
+ * Query param: ?limit=20 (default 20, max 50)
+ *
+ * Response 200: { runs: PipelineLogEntry[] }
+ */
+router.get('/history', async (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit ?? '20', 10), 50)
+  try {
+    const runs = await getPipelineHistory(limit)
+    res.json({ runs })
+  } catch (err) {
+    console.error(`[GET /api/pipeline/history] ${err.message}`)
     res.status(500).json({ error: err.message })
   }
 })

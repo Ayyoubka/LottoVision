@@ -10,8 +10,16 @@
 
 import { Router }      from 'express'
 import { verifyToken } from '../middleware/verifyToken.js'
-import { createTicket, createWeeklyTicket, getMyTickets, checkTicket } from '../services/ticketService.js'
+import { createTicket, getMyTickets, checkTicket } from '../services/ticketService.js'
 import { getActiveTicket } from '../repositories/ticketRepository.js'
+import {
+  createGroupWeeklyTicket,
+  patchGroupWeeklyTicket,
+  activateGroupWeeklyTicket,
+  deactivateGroupWeeklyTicket,
+  getActiveWeeklyTicket,
+  getWeeklyTicketHistory,
+} from '../services/weeklyTicketService.js'
 
 const router = Router()
 router.use(verifyToken)
@@ -42,26 +50,61 @@ router.get('/active', async (req, res) => {
   }
 })
 
+// ── GET /api/tickets/weekly/active ────────────────────────────────────────
+/**
+ * Return the current active weekly ticket from the weekly_tickets collection.
+ * Response 200: { ticket: WeeklyTicket | null }
+ */
+router.get('/weekly/active', async (req, res) => {
+  try {
+    const ticket = await getActiveWeeklyTicket()
+    res.json({ ticket })
+  } catch (err) {
+    console.error(`[GET /api/tickets/weekly/active] ${err.message}`)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ── GET /api/tickets/weekly/history ───────────────────────────────────────
+/**
+ * Return the weekly ticket history, newest first.
+ * Query: ?limit=20
+ * Response 200: { tickets: WeeklyTicket[] }
+ */
+router.get('/weekly/history', async (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit ?? '20', 10), 50)
+  try {
+    const tickets = await getWeeklyTicketHistory(limit)
+    res.json({ tickets })
+  } catch (err) {
+    console.error(`[GET /api/tickets/weekly/history] ${err.message}`)
+    res.status(500).json({ error: err.message })
+  }
+})
+
 // ── POST /api/tickets/weekly ───────────────────────────────────────────────
 /**
- * Create a new active weekly ticket.
- * Archives the previous active ticket automatically.
+ * Create a new active weekly group ticket.
+ * Deactivates the previous one and writes to both weekly_tickets + tickets.
  *
- * Body: { numbers, strongNumber, drawId?, cost? }
- * Response 201: TicketDocument (with active: true)
+ * Body: { numbers, strongNumber, cost?, notes?, effectiveFromDrawId? }
+ * Response 201: { weeklyTicket, ticket }
  */
 router.post('/weekly', async (req, res) => {
-  const { numbers, strongNumber, drawId, cost } = req.body ?? {}
+  const { numbers, strongNumber, cost, notes, effectiveFromDrawId } = req.body ?? {}
 
   console.log(
     `[POST /api/tickets/weekly] uid=${req.uid}` +
     `  numbers=${JSON.stringify(numbers)}  strong=${strongNumber}` +
-    `  drawId=${drawId ?? 'null'}  cost=${cost ?? 'default'}`
+    `  cost=${cost ?? 'default'}  notes=${notes ? 'yes' : 'none'}`
   )
 
   try {
-    const ticket = await createWeeklyTicket({ uid: req.uid, drawId, numbers, strongNumber, cost })
-    res.status(201).json(ticket)
+    const result = await createGroupWeeklyTicket({
+      numbers, strongNumber, cost, notes, effectiveFromDrawId,
+      createdBy: req.uid,
+    })
+    res.status(201).json(result)
   } catch (err) {
     console.error(`[POST /api/tickets/weekly] ${err.message}`)
     if (err.code === 'VALIDATION_ERROR')
@@ -69,6 +112,62 @@ router.post('/weekly', async (req, res) => {
     if (err.code === 'FIRESTORE_UNAVAILABLE')
       return res.status(503).json({ error: 'FIRESTORE_UNAVAILABLE' })
     res.status(500).json({ error: 'SAVE_FAILED', message: err.message })
+  }
+})
+
+// ── PATCH /api/tickets/weekly/:id ─────────────────────────────────────────
+/**
+ * Update editable fields on a weekly ticket (numbers, strongNumber, cost, notes).
+ * Body: partial { numbers?, strongNumber?, cost?, notes? }
+ * Response 200: updated WeeklyTicket
+ */
+router.patch('/weekly/:id', async (req, res) => {
+  const { id }                               = req.params
+  const { numbers, strongNumber, cost, notes } = req.body ?? {}
+
+  try {
+    const updated = await patchGroupWeeklyTicket(id, { numbers, strongNumber, cost, notes })
+    res.json(updated)
+  } catch (err) {
+    console.error(`[PATCH /api/tickets/weekly/${id}] ${err.message}`)
+    if (err.code === 'VALIDATION_ERROR') return res.status(400).json({ error: 'VALIDATION_ERROR', message: err.message })
+    if (err.code === 'NOT_FOUND')        return res.status(404).json({ error: 'NOT_FOUND' })
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ── POST /api/tickets/weekly/:id/activate ─────────────────────────────────
+/**
+ * Re-activate a ticket from history.
+ * Deactivates all others and creates a fresh tickets entry.
+ * Response 200: { weeklyTicket, ticket }
+ */
+router.post('/weekly/:id/activate', async (req, res) => {
+  const { id } = req.params
+  try {
+    const result = await activateGroupWeeklyTicket(id, req.uid)
+    res.json(result)
+  } catch (err) {
+    console.error(`[POST /api/tickets/weekly/${id}/activate] ${err.message}`)
+    if (err.code === 'NOT_FOUND') return res.status(404).json({ error: 'NOT_FOUND' })
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ── POST /api/tickets/weekly/:id/deactivate ───────────────────────────────
+/**
+ * Deactivate a specific weekly ticket (no active ticket until the next one is created).
+ * Response 200: updated WeeklyTicket
+ */
+router.post('/weekly/:id/deactivate', async (req, res) => {
+  const { id } = req.params
+  try {
+    const updated = await deactivateGroupWeeklyTicket(id)
+    res.json(updated)
+  } catch (err) {
+    console.error(`[POST /api/tickets/weekly/${id}/deactivate] ${err.message}`)
+    if (err.code === 'NOT_FOUND') return res.status(404).json({ error: 'NOT_FOUND' })
+    res.status(500).json({ error: err.message })
   }
 })
 

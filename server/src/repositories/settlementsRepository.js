@@ -72,6 +72,19 @@ export async function getRecentSettlements(limit = 10) {
 }
 
 /**
+ * Fetch the settlement document for a specific draw, or null if none exists.
+ */
+export async function getSettlementForDraw(drawId) {
+  if (!isFirestoreReady()) return null
+  const snap = await getDb()
+    .collection(COLLECTION)
+    .where('drawId', '==', drawId)
+    .limit(1)
+    .get()
+  return snap.empty ? null : snap.docs[0].data()
+}
+
+/**
  * Check whether a settlement already exists for a given draw.
  * Used for idempotency — prevents double-settling the same draw.
  */

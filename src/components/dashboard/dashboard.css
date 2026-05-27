@@ -763,3 +763,195 @@
   opacity: 0.5;
   cursor: default;
 }
+
+/* Source badge (Auto / Manual) */
+.db-pipeline-source-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.db-source-scheduler {
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  color: #34d399;
+}
+
+.db-source-manual {
+  background: rgba(124, 92, 188, 0.12);
+  border: 1px solid rgba(124, 92, 188, 0.3);
+  color: #a78bfa;
+}
+
+/* Next scheduled run */
+.db-pipeline-next-run {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(255, 215, 0, 0.04);
+  border: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.db-pipeline-next-label {
+  font-size: 11px;
+  color: #3e3e60;
+  font-weight: 500;
+}
+
+.db-pipeline-next-val {
+  font-size: 11px;
+  color: #a08030;
+  font-weight: 600;
+}
+
+/* History dots */
+.db-pipeline-history-dots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 2px 0;
+}
+
+.db-pipeline-hist-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  cursor: default;
+}
+
+.db-hist-won  { background: #f59e0b; }
+.db-hist-lost { background: #3e3e60; }
+.db-hist-err  { background: #f87171; }
+
+/* ── Notifications card ── */
+.db-notif-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.db-notif-test-btn {
+  background: rgba(124, 92, 188, 0.1);
+  border: 1px solid rgba(124, 92, 188, 0.25);
+  color: #a78bfa;
+  border-radius: 8px;
+  padding: 3px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.db-notif-test-btn:hover:not(:disabled) {
+  background: rgba(124, 92, 188, 0.2);
+}
+
+.db-notif-test-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.db-notif-channel-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #16162a;
+}
+
+.db-notif-channel-name {
+  font-size: 12px;
+  color: #8c8cac;
+  font-weight: 600;
+}
+
+.db-notif-status {
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.db-notif-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.db-notif-connected    { color: #34d399; }
+.db-notif-connected    .db-notif-dot { background: #34d399; }
+.db-notif-error        { color: #f87171; }
+.db-notif-error        .db-notif-dot { background: #f87171; }
+.db-notif-unconfigured { color: #3e3e60; }
+
+.db-notif-last-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+}
+
+.db-notif-last-key {
+  font-size: 11px;
+  color: #3e3e60;
+}
+
+.db-notif-last-val {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.db-notif-success-val { color: #4a6a5a; }
+.db-notif-fail-val    { color: #8a4a4a; }
+
+.db-notif-feedback {
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.db-notif-feedback-ok   { background: rgba(52,211,153,0.08); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
+.db-notif-feedback-fail { background: rgba(248,113,113,0.08); color: #f87171; border: 1px solid rgba(248,113,113,0.2); }
+
+.db-notif-hint {
+  font-size: 11px;
+  color: #3e3e60;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.db-notif-hint code {
+  background: #16162a;
+  border: 1px solid #2c2c48;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 10px;
+  color: #7c5cbc;
+}
+
+/* Active ticket card extras */
+.db-ticket-notes {
+  font-size: 12px;
+  color: #7c6c9c;
+  font-style: italic;
+  margin: 0;
+  padding: 6px 0 2px;
+  border-top: 1px solid #16162a;
+}
+
+.db-ticket-from-draw {
+  font-size: 11px;
+  color: #3e3e60;
+  margin: 0;
+}

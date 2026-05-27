@@ -1,6 +1,6 @@
 import './dashboard.css'
 
-export default function ActiveTicketCard({ ticket, loading }) {
+export default function ActiveTicketCard({ ticket, weeklyTicket, loading }) {
   if (loading) {
     return (
       <div className="card db-card">
@@ -11,6 +11,11 @@ export default function ActiveTicketCard({ ticket, loading }) {
       </div>
     )
   }
+
+  // Show notes/cost from weekly_tickets if available, fall back to tickets doc
+  const cost   = weeklyTicket?.cost  ?? ticket?.cost  ?? 70
+  const notes  = weeklyTicket?.notes ?? null
+  const fromDraw = weeklyTicket?.effectiveFromDrawId ?? null
 
   return (
     <div className={`card db-card${ticket?.status === 'won' ? ' winner' : ''}`}>
@@ -26,39 +31,48 @@ export default function ActiveTicketCard({ ticket, loading }) {
         </div>
       </div>
 
-      {!ticket && (
-        <p className="db-empty-msg">No active ticket — create one in Tools → "Set as Weekly Ticket"</p>
+      {!ticket && !weeklyTicket && (
+        <p className="db-empty-msg">No active ticket — create one in the Ticket tab</p>
       )}
 
-      {ticket && (
+      {/* Show numbers from ticket (draw instance) or from weeklyTicket definition */}
+      {(ticket || weeklyTicket) && (
         <>
           <div className="balls-row">
-            {ticket.numbers.map(n => (
+            {(ticket ?? weeklyTicket).numbers.map(n => (
               <div
                 key={n}
-                className={`ball${ticket.matchedCount > 0 && ticket.checked ? ' matched-main' : ''}`}
+                className={`ball${ticket?.matchedCount > 0 && ticket?.checked ? ' matched-main' : ''}`}
               >
                 {n}
               </div>
             ))}
             <div className="strong-ball-wrap">
-              <div className={`ball strong-ball${ticket.matchedStrong && ticket.checked ? ' matched-strong' : ''}`}>
-                {ticket.strongNumber}
+              <div className={`ball strong-ball${ticket?.matchedStrong && ticket?.checked ? ' matched-strong' : ''}`}>
+                {(ticket ?? weeklyTicket).strongNumber}
               </div>
               <span className="strong-ball-label">STRONG</span>
             </div>
           </div>
 
           <div className="db-ticket-footer">
-            <span className="db-ticket-cost">
-              ₪{ticket.cost ?? 70} group cost
-            </span>
-            {ticket.status === 'won' && (
+            <span className="db-ticket-cost">₪{cost} group cost</span>
+            {ticket?.status === 'won' && (
               <span className="db-settle-prize" style={{ fontWeight: 800, fontSize: 15 }}>
                 +₪{(ticket.winnings ?? 0).toLocaleString()}
               </span>
             )}
           </div>
+
+          {/* Notes from weekly ticket definition */}
+          {notes && (
+            <p className="db-ticket-notes">{notes}</p>
+          )}
+
+          {/* Effective from draw — shown when ticket isn't yet linked to a draw instance */}
+          {fromDraw && !ticket?.drawId && (
+            <p className="db-ticket-from-draw">From draw #{fromDraw}</p>
+          )}
         </>
       )}
     </div>

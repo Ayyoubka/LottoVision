@@ -37,3 +37,13 @@ export async function runPipeline(idToken) {
 export async function fetchPipelineStatus(idToken) {
   return authFetch('/api/pipeline/status', idToken)
 }
+
+/**
+ * Fetch pipeline run history (newest first).
+ * @param {string} idToken
+ * @param {number} [limit=20]
+ * @returns {Promise<{ runs: Object[] }>}
+ */
+export async function fetchPipelineHistory(idToken, limit = 20) {
+  return authFetch(`/api/pipeline/history?limit=${limit}`, idToken)
+}
