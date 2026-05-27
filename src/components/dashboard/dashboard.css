@@ -1,0 +1,765 @@
+/* ── View navigation ── */
+.view-nav {
+  display: flex;
+  background: #0c0c1e;
+  border-bottom: 1px solid #1c1c38;
+}
+
+.view-btn {
+  flex: 1;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #4a4a6a;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.view-btn.active {
+  color: #ffd700;
+  border-bottom-color: #ffd700;
+}
+
+.view-btn:not(.active):hover {
+  color: #7c5cbc;
+}
+
+/* ── Dashboard screen ── */
+.db-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 16px 48px;
+  flex: 1;
+}
+
+.db-refresh-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.db-refresh-btn {
+  background: rgba(124, 58, 237, 0.08);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  color: #7c5cbc;
+  border-radius: 10px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.db-refresh-btn:hover:not(:disabled) {
+  background: rgba(124, 58, 237, 0.16);
+  color: #a78bfa;
+}
+
+.db-refresh-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ── Card base ── */
+.db-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.db-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.db-card-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #4a4a6a;
+}
+
+.db-card-meta {
+  font-size: 11px;
+  color: #3e3e60;
+  font-weight: 500;
+}
+
+.db-loading-msg {
+  color: #4a4a6a;
+  font-size: 12px;
+  text-align: center;
+  padding: 8px 0;
+  margin: 0;
+}
+
+.db-error-msg {
+  color: #f87171;
+  font-size: 12px;
+  margin: 0;
+}
+
+.db-empty-msg {
+  color: #3e3e60;
+  font-size: 12px;
+  text-align: center;
+  padding: 8px 0;
+  margin: 0;
+}
+
+/* ── Active ticket footer ── */
+.db-ticket-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.db-ticket-cost {
+  font-size: 11px;
+  color: #3e3e60;
+}
+
+/* ── Last check ── */
+.db-check-result {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.db-check-match {
+  font-size: 40px;
+  font-weight: 900;
+  color: #ffd700;
+  line-height: 1;
+}
+
+.db-check-match-label {
+  font-size: 13px;
+  color: #4a4a6a;
+  font-weight: 500;
+}
+
+.db-check-tier {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 20px;
+  padding: 2px 10px;
+}
+
+.db-check-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.db-check-winnings {
+  font-size: 14px;
+  font-weight: 700;
+  color: #4a4a6a;
+}
+
+.db-winnings-won {
+  color: #f59e0b;
+}
+
+/* ── Members ── */
+.db-members-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.db-member-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid #1c1c32;
+}
+
+.db-member-row:last-child {
+  border-bottom: none;
+}
+
+.db-member-name {
+  font-size: 14px;
+  color: #c8c8e0;
+  font-weight: 500;
+}
+
+.db-member-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.db-member-balance {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.db-member-won {
+  font-size: 10px;
+  color: #78716c;
+}
+
+.db-bal-pos { color: #34d399; }
+.db-bal-neg { color: #f87171; }
+
+.db-members-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #2a1f50;
+  margin-top: 2px;
+}
+
+.db-total-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #4a4a6a;
+}
+
+.db-total-value {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/* ── History ── */
+.db-history-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.db-history-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid #1c1c32;
+}
+
+.db-history-row:last-child {
+  border-bottom: none;
+}
+
+.db-history-won {
+  background: rgba(245, 158, 11, 0.04);
+  border-radius: 8px;
+  padding: 9px 6px;
+  margin: 0 -6px;
+}
+
+.db-history-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.db-history-draw {
+  font-size: 13px;
+  color: #c8c8e0;
+  font-weight: 600;
+}
+
+.db-history-date {
+  font-size: 11px;
+  color: #3e3e60;
+}
+
+.db-history-right {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.db-history-tier {
+  font-size: 10px;
+  font-weight: 700;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 20px;
+  padding: 2px 7px;
+}
+
+.db-history-winnings {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f59e0b;
+}
+
+/* ── Settlement card ── */
+.db-settle-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.db-settle-profit {
+  background: rgba(52, 211, 153, 0.08);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+.db-settle-loss {
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.db-settle-result-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #4a4a6a;
+}
+
+.db-settle-net {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.db-settle-profit .db-settle-net { color: #34d399; }
+.db-settle-loss   .db-settle-net { color: #f87171; }
+
+.db-settle-stats {
+  display: flex;
+  gap: 0;
+}
+
+.db-settle-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  padding: 8px 4px;
+  border-right: 1px solid #1c1c32;
+}
+
+.db-settle-stat:last-child {
+  border-right: none;
+}
+
+.db-settle-stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #3e3e60;
+}
+
+.db-settle-stat-value {
+  font-size: 15px;
+  font-weight: 800;
+  color: #c8c8e0;
+}
+
+.db-settle-cost  { color: #f87171; }
+.db-settle-prize { color: #f59e0b; }
+
+/* ── Weekly result banner ── */
+.weekly-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  margin-bottom: 2px;
+}
+
+.weekly-banner-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.weekly-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.weekly-banner-label {
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 3px;
+}
+
+.weekly-banner-sub {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* Banner variants */
+.weekly-banner-pending {
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.25);
+}
+.weekly-banner-pending .weekly-banner-dot   { background: #7c3aed; animation: db-pulse 2s infinite; }
+.weekly-banner-pending .weekly-banner-label { color: #a78bfa; }
+.weekly-banner-pending .weekly-banner-sub   { color: #7c5cbc; }
+
+.weekly-banner-win {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.weekly-banner-win .weekly-banner-dot   { background: #f59e0b; }
+.weekly-banner-win .weekly-banner-label { color: #ffd700; }
+.weekly-banner-win .weekly-banner-sub   { color: #d97706; }
+
+.weekly-banner-loss {
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+.weekly-banner-loss .weekly-banner-dot   { background: #f87171; }
+.weekly-banner-loss .weekly-banner-label { color: #f87171; }
+.weekly-banner-loss .weekly-banner-sub   { color: #b45454; }
+
+.weekly-banner-processing {
+  background: rgba(96, 165, 250, 0.08);
+  border: 1px solid rgba(96, 165, 250, 0.2);
+}
+.weekly-banner-processing .weekly-banner-dot   { background: #60a5fa; animation: db-pulse 0.8s infinite; }
+.weekly-banner-processing .weekly-banner-label { color: #60a5fa; }
+.weekly-banner-processing .weekly-banner-sub   { color: #4a8adc; }
+
+/* ── Status chips (reusable) ── */
+.weekly-chip {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+
+.weekly-chip-win     { color: #f59e0b; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25); }
+.weekly-chip-loss    { color: #f87171; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.2); }
+.weekly-chip-pending { color: #a78bfa; background: rgba(124,58,237,0.1);  border: 1px solid rgba(124,58,237,0.2);  }
+
+/* ── Next draw card ── */
+.db-nextdraw-card {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.db-countdown-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.db-countdown-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.db-countdown-num {
+  font-size: 32px;
+  font-weight: 900;
+  color: #ffd700;
+  line-height: 1;
+}
+
+.db-countdown-lbl {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #3e3e60;
+}
+
+/* ── Group summary card ── */
+.db-summary-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+
+.db-summary-stat {
+  flex: 1;
+  min-width: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 6px;
+  border-right: 1px solid #1c1c32;
+  align-items: center;
+}
+
+.db-summary-stat:last-child {
+  border-right: none;
+}
+
+.db-summary-wide {
+  flex: 2;
+}
+
+.db-summary-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #3e3e60;
+}
+
+.db-summary-value {
+  font-size: 15px;
+  font-weight: 800;
+  color: #c8c8e0;
+}
+
+.db-summary-net {
+  font-size: 18px;
+}
+
+/* ── Member balance edit ── */
+.db-member-edit-btn {
+  background: none;
+  border: none;
+  color: #3e3e60;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 4px;
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.db-member-row:hover .db-member-edit-btn {
+  opacity: 1;
+}
+
+.db-member-edit-btn:hover {
+  color: #a78bfa;
+}
+
+.db-member-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.db-member-edit-prefix {
+  font-size: 13px;
+  color: #4a4a6a;
+}
+
+.db-member-edit-input {
+  width: 70px;
+  background: #16162a;
+  border: 1px solid #7c3aed;
+  border-radius: 8px;
+  color: #c8c8e0;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 8px;
+  outline: none;
+  text-align: right;
+}
+
+.db-member-edit-save,
+.db-member-edit-cancel {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.db-member-edit-save   { color: #34d399; }
+.db-member-edit-cancel { color: #f87171; }
+
+/* ── History screen full list ── */
+.db-history-full-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.db-history-full-row {
+  border-bottom: 1px solid #1c1c32;
+}
+
+.db-history-full-row:last-child {
+  border-bottom: none;
+}
+
+.db-history-full-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 12px 0;
+  cursor: pointer;
+  text-align: left;
+  gap: 8px;
+}
+
+.db-history-full-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.db-history-full-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.db-history-chevron {
+  font-size: 10px;
+  color: #3e3e60;
+}
+
+.db-history-full-body {
+  padding: 0 0 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.db-history-stats {
+  border-radius: 10px;
+  background: #0c0c1e;
+  border: 1px solid #1c1c32;
+}
+
+.db-history-members {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Pipeline card ── */
+.db-pipeline-card {
+  border-color: #1c1c38;
+}
+
+.db-pipeline-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+
+.db-pipeline-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.db-pipeline-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+/* Status variants */
+.db-pipeline-waiting  { background: rgba(74,74,106,0.15); border: 1px solid rgba(74,74,106,0.3);   }
+.db-pipeline-running  { background: rgba(124,58,237,0.1);  border: 1px solid rgba(124,58,237,0.25); }
+.db-pipeline-won      { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2);  }
+.db-pipeline-lost     { background: rgba(248,113,113,0.08);border: 1px solid rgba(248,113,113,0.2); }
+.db-pipeline-error    { background: rgba(248,113,113,0.08);border: 1px solid rgba(248,113,113,0.2); }
+
+.db-pipeline-waiting  .db-pipeline-dot { background: #4a4a6a; }
+.db-pipeline-running  .db-pipeline-dot { background: #a78bfa; animation: db-pulse 1s infinite; }
+.db-pipeline-won      .db-pipeline-dot { background: #f59e0b; }
+.db-pipeline-lost     .db-pipeline-dot { background: #f87171; }
+.db-pipeline-error    .db-pipeline-dot { background: #f87171; }
+
+.db-pipeline-waiting  .db-pipeline-label { color: #4a4a6a; }
+.db-pipeline-running  .db-pipeline-label { color: #a78bfa; }
+.db-pipeline-won      .db-pipeline-label { color: #f59e0b; }
+.db-pipeline-lost     .db-pipeline-label { color: #f87171; }
+.db-pipeline-error    .db-pipeline-label { color: #f87171; }
+
+@keyframes db-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* Summary rows */
+.db-pipeline-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.db-pipeline-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid #16162a;
+}
+
+.db-pipeline-row:last-child {
+  border-bottom: none;
+}
+
+.db-pipeline-key {
+  font-size: 11px;
+  color: #3e3e60;
+  font-weight: 500;
+}
+
+.db-pipeline-val {
+  font-size: 12px;
+  color: #c8c8e0;
+  font-weight: 600;
+}
+
+.db-val-gold { color: #f59e0b; }
+
+/* Run button */
+.db-pipeline-run-btn {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.db-pipeline-run-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.db-pipeline-run-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.db-pipeline-run-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

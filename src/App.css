@@ -1,0 +1,1320 @@
+/* ── Layout ── */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/* ── Header ── */
+.header {
+  position: relative;
+  text-align: center;
+  padding: 40px 24px 30px;
+  background: linear-gradient(160deg, #13082a 0%, #0b0b18 100%);
+  border-bottom: 1px solid #1c1c32;
+}
+
+.header-logout-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: rgba(124, 58, 237, 0.08);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  color: #5c4a8a;
+  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.header-logout-btn:hover {
+  background: rgba(124, 58, 237, 0.16);
+  color: #a78bfa;
+}
+
+.header-icon {
+  font-size: 44px;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.logo-text {
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: 8px;
+  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 8px;
+}
+
+.tagline {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #4a4a6a;
+}
+
+/* ── Content ── */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 16px 48px;
+  flex: 1;
+}
+
+/* ── Mode toggle ── */
+.mode-toggle {
+  display: flex;
+  background: #0c0c1e;
+  border: 1px solid #1c1c38;
+  border-radius: 14px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: #4a4a6a;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+
+.mode-btn.active {
+  background: linear-gradient(135deg, #7c3aed 0%, #4338ca 100%);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(109, 40, 217, 0.35);
+}
+
+/* ── Info banner ── */
+.info-banner {
+  text-align: center;
+  font-size: 12px;
+  color: #4a4a6a;
+  letter-spacing: 0.4px;
+  padding: 0 4px;
+}
+
+/* ── Cards ── */
+.card {
+  background: #111128;
+  border-radius: 22px;
+  padding: 24px 20px;
+  border: 1px solid #1c1c38;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.result-card {
+  border-color: #2a1f50;
+}
+
+.result-card.winner {
+  border-color: #3a2a60;
+  background: linear-gradient(160deg, #140d2a 0%, #111128 60%);
+}
+
+/* ── Labels ── */
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: #4a4a6a;
+}
+
+.range-badge {
+  font-size: 10px;
+  font-weight: 500;
+  color: #2e2e50;
+  letter-spacing: 0.5px;
+}
+
+/* ── Main number grid ── */
+.main-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+/* ── Inputs ── */
+.ball-input {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 13px;
+  background: #0c0c1e;
+  border: 1.5px solid #1c1c38;
+  color: #dcdcff;
+  font-size: 17px;
+  font-weight: 800;
+  text-align: center;
+  outline: none;
+  appearance: textfield;
+  -moz-appearance: textfield;
+  -webkit-appearance: none;
+  padding: 0;
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+}
+
+.ball-input::placeholder {
+  color: #22223a;
+  font-weight: 400;
+}
+
+.ball-input:focus {
+  border-color: #6d28d9;
+  background: #100d28;
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15);
+}
+
+/* ── Strong number ── */
+.strong-row {
+  display: flex;
+  justify-content: center;
+}
+
+.strong-input {
+  width: 66px !important;
+  height: 66px;
+  border-radius: 50% !important;
+  border-color: #92400e !important;
+  background: #160d00 !important;
+  color: #fbbf24 !important;
+  font-size: 24px !important;
+}
+
+.strong-input:focus {
+  border-color: #f59e0b !important;
+  background: #1c1000 !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15) !important;
+}
+
+/* ── Error ── */
+.error-msg {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* ── Price strip ── */
+.price-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0c0c1e;
+  border: 1px solid #1c1c38;
+  border-radius: 13px;
+  padding: 13px 16px;
+}
+
+.price-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #4a4a6a;
+}
+
+.price-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: #a78bfa;
+}
+
+/* ── CTA button ── */
+.cta-btn {
+  width: 100%;
+  padding: 17px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #7c3aed 0%, #4338ca 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  box-shadow: 0 4px 20px rgba(109, 40, 217, 0.35);
+}
+
+.cta-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  transform: none;
+}
+
+.cta-btn:not(:disabled):active {
+  opacity: 0.85;
+  transform: scale(0.985);
+}
+
+/* ── Loading dots ── */
+.loading-dots span {
+  display: inline-block;
+  animation: blink 1.2s step-start infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 0.2; }
+  50%       { opacity: 1;   }
+}
+
+/* ── Draw metadata ── */
+.draw-meta {
+  display: flex;
+  align-items: center;
+  background: rgba(109, 40, 217, 0.08);
+  border: 1px solid rgba(109, 40, 217, 0.22);
+  border-radius: 14px;
+  padding: 14px 18px;
+  gap: 0;
+}
+
+.draw-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
+.draw-meta-item:last-child {
+  align-items: flex-end;
+}
+
+.draw-meta-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #3e3e60;
+}
+
+.draw-meta-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: #a78bfa;
+  letter-spacing: 0.5px;
+}
+
+.draw-meta-divider {
+  width: 1px;
+  height: 36px;
+  background: rgba(109, 40, 217, 0.2);
+  margin: 0 18px;
+  flex-shrink: 0;
+}
+
+/* ── Result headline ── */
+.result-headline {
+  text-align: center;
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Lottery balls display ── */
+.balls-row {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ball {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s;
+}
+
+.unmatched {
+  background: #0c0c1e;
+  border: 2px solid #1c1c38;
+  color: #3a3a5a;
+}
+
+.matched-main {
+  background: linear-gradient(135deg, #7c3aed, #4338ca);
+  border: 2px solid #7c3aed;
+  color: #fff;
+  box-shadow: 0 0 14px rgba(124, 58, 237, 0.45);
+}
+
+.strong-ball {
+  border: 2px solid #92400e;
+  color: #78350f;
+}
+
+.strong-ball.unmatched {
+  background: #160d00;
+  border-color: #78350f;
+  color: #78350f;
+}
+
+.strong-ball.matched-strong {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  border-color: #f59e0b;
+  color: #fff;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.45);
+}
+
+.strong-ball-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.strong-ball-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #78350f;
+  text-transform: uppercase;
+}
+
+/* ── Match summary ── */
+.match-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.match-count {
+  font-size: 22px;
+  font-weight: 900;
+  color: #a78bfa;
+}
+
+.match-text {
+  color: #4a4a6a;
+  font-weight: 500;
+}
+
+.strong-chip {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ── Winnings ── */
+.winnings-box {
+  background: linear-gradient(135deg, rgba(124,58,237,0.1) 0%, rgba(67,56,202,0.1) 100%);
+  border: 1px solid rgba(124, 58, 237, 0.25);
+  border-radius: 16px;
+  padding: 22px 20px;
+  text-align: center;
+}
+
+.winnings-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #4a4a6a;
+  margin: 0 0 6px;
+}
+
+.winnings-amount {
+  font-size: 32px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 6px;
+}
+
+.winnings-odds {
+  font-size: 11px;
+  color: #5c5c7a;
+  letter-spacing: 0.5px;
+  margin: 0 0 4px;
+}
+
+.winnings-pool {
+  font-size: 10px;
+  color: #3a3a5a;
+  font-style: italic;
+  margin: 0;
+}
+
+/* ── Mode toggle: 4-button variant ── */
+.mode-toggle.four-modes .mode-btn {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  padding: 10px 4px;
+}
+
+/* ── Picks: recommendation groups ── */
+.rec-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  --rec-accent:  #7c3aed;
+  --rec-dim:     rgba(124, 58, 237, 0.15);
+  --rec-border:  rgba(124, 58, 237, 0.22);
+  --rec-card-bg: rgba(124, 58, 237, 0.06);
+}
+
+.rec-hot      { --rec-accent: #ef4444; --rec-dim: rgba(239,68,68,0.15);   --rec-border: rgba(239,68,68,0.22);   --rec-card-bg: rgba(239,68,68,0.06);   }
+.rec-balanced { --rec-accent: #10b981; --rec-dim: rgba(16,185,129,0.15);  --rec-border: rgba(16,185,129,0.22);  --rec-card-bg: rgba(16,185,129,0.06);  }
+.rec-risky    { --rec-accent: #f59e0b; --rec-dim: rgba(245,158,11,0.15);  --rec-border: rgba(245,158,11,0.22);  --rec-card-bg: rgba(245,158,11,0.06);  }
+
+.rec-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 2px;
+}
+
+.rec-group-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rec-group-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--rec-accent);
+}
+
+.rec-group-desc {
+  font-size: 10px;
+  color: #3e3e60;
+  letter-spacing: 0.3px;
+}
+
+.rec-group-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--rec-accent);
+  background: var(--rec-dim);
+  border: 1px solid var(--rec-border);
+  border-radius: 20px;
+  padding: 2px 9px;
+  letter-spacing: 0.3px;
+}
+
+/* ── Picks: ticket card ── */
+.rec-ticket-card {
+  background: var(--rec-card-bg);
+  border: 1px solid var(--rec-border);
+  border-radius: 18px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rec-ticket-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.rec-ticket-num {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--rec-accent);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.rec-ticket-explanation {
+  font-size: 11px;
+  color: #3e3e60;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* ── Picks: balls ── */
+.rec-balls-row {
+  display: flex;
+  gap: 5px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.rec-ball {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0c0c1e;
+  border: 1.5px solid var(--rec-border);
+  color: var(--rec-accent);
+}
+
+.rec-strong-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  margin-left: 2px;
+}
+
+.rec-strong-ball {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #160d00;
+  border: 1.5px solid #78350f;
+  color: #d97706;
+}
+
+.rec-strong-label {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #78350f;
+}
+
+/* ── History: Summary card ── */
+.sim-summary-card {
+  background: linear-gradient(160deg, #0f0921 0%, #111128 70%);
+  border-color: #2e1f5e;
+  gap: 18px;
+}
+
+.sim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sim-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #3e3e60;
+}
+
+.sim-draws-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: #5c4a8a;
+  letter-spacing: 0.5px;
+}
+
+/* Ticket pill row */
+.sim-ticket-strip {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.sim-ticket-ball {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #0c0c1e;
+  border: 1.5px solid #2a1f50;
+  color: #7c5cbc;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sim-ticket-strong {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #160d00;
+  border: 1.5px solid #78350f;
+  color: #d97706;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Stats 2×2 grid */
+.sim-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.sim-stat {
+  background: #0c0c1e;
+  border: 1px solid #1c1c38;
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.sim-stat-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #3e3e60;
+}
+
+.sim-stat-value {
+  font-size: 20px;
+  font-weight: 900;
+  color: #a78bfa;
+  letter-spacing: 0.3px;
+}
+
+.sim-val-gold {
+  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sim-val-pos { color: #34d399; }
+.sim-val-neg { color: #f87171; }
+
+/* Profit / Loss bar */
+.sim-profit-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+
+.sim-profit {
+  background: rgba(52, 211, 153, 0.07);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+.sim-loss {
+  background: rgba(248, 113, 113, 0.07);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.sim-profit-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #3e3e60;
+}
+
+.sim-profit .sim-profit-label  { color: #065f46; }
+.sim-loss   .sim-profit-label  { color: #7f1d1d; }
+
+.sim-profit-amount {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.sim-profit .sim-profit-amount { color: #34d399; }
+.sim-loss   .sim-profit-amount { color: #f87171; }
+
+/* Best win callout */
+.sim-best-win {
+  background: rgba(245, 158, 11, 0.06);
+  border: 1px solid rgba(245, 158, 11, 0.18);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sim-best-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #78350f;
+}
+
+.sim-best-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.sim-best-prize {
+  font-size: 14px;
+  font-weight: 700;
+  color: #a78bfa;
+}
+
+.sim-best-amount {
+  font-size: 18px;
+  font-weight: 900;
+  color: #f59e0b;
+}
+
+.sim-best-meta {
+  font-size: 11px;
+  color: #3e3e60;
+  letter-spacing: 0.3px;
+}
+
+/* ── History: Winning draws ── */
+.wins-count-badge {
+  background: rgba(124, 58, 237, 0.15);
+  color: #7c3aed;
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-radius: 20px;
+  padding: 1px 9px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.win-draw-card {
+  background: rgba(124, 58, 237, 0.06);
+  border: 1px solid rgba(124, 58, 237, 0.18);
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.win-draw-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.win-draw-id-date {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.win-draw-id {
+  font-size: 14px;
+  font-weight: 800;
+  color: #a78bfa;
+}
+
+.win-draw-date {
+  font-size: 11px;
+  color: #3e3e60;
+}
+
+.win-prize-badge {
+  background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(67,56,202,0.2));
+  border: 1px solid rgba(124, 58, 237, 0.35);
+  color: #c4b5fd;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+.win-draw-balls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.win-ball {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.win-ball-hit {
+  background: linear-gradient(135deg, #7c3aed, #4338ca);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.4);
+}
+
+.win-ball-miss {
+  background: #0c0c1e;
+  border: 1.5px solid #1c1c38;
+  color: #2e2e50;
+}
+
+.win-ball-strong {
+  border: 1.5px solid #78350f;
+}
+
+.win-ball-strong-hit {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  border-color: #f59e0b;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+}
+
+.win-ball-strong-miss {
+  background: #160d00;
+  color: #78350f;
+}
+
+.win-draw-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.win-match-info {
+  font-size: 12px;
+  color: #5c5c7a;
+  font-weight: 500;
+}
+
+.win-amount {
+  font-size: 16px;
+  font-weight: 900;
+  color: #34d399;
+}
+
+/* ── History: All Draws compact list ── */
+.draws-compact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-height: 320px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 12px;
+  background: #0c0c1e;
+  border: 1px solid #1c1c38;
+}
+
+.draws-compact-list::-webkit-scrollbar {
+  width: 3px;
+}
+
+.draws-compact-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.draws-compact-list::-webkit-scrollbar-thumb {
+  background: #2a1f50;
+  border-radius: 3px;
+}
+
+.draw-compact-row {
+  display: grid;
+  grid-template-columns: 52px 52px 40px 1fr;
+  align-items: center;
+  padding: 8px 14px;
+  border-bottom: 1px solid #13132a;
+  gap: 4px;
+}
+
+.draw-compact-row:last-child {
+  border-bottom: none;
+}
+
+.draw-compact-win {
+  background: rgba(124, 58, 237, 0.06);
+}
+
+.draw-compact-id {
+  font-size: 11px;
+  font-weight: 700;
+  color: #4a4a6a;
+}
+
+.draw-compact-win .draw-compact-id {
+  color: #7c5cbc;
+}
+
+.draw-compact-date {
+  font-size: 11px;
+  color: #2e2e50;
+}
+
+.draw-compact-match {
+  font-size: 11px;
+  font-weight: 700;
+  color: #3a3a5a;
+  text-align: center;
+}
+
+.draw-compact-win .draw-compact-match {
+  color: #a78bfa;
+}
+
+.draw-compact-tier {
+  font-size: 10px;
+  font-weight: 700;
+  color: #7c3aed;
+  text-align: right;
+  letter-spacing: 0.3px;
+}
+
+.draw-compact-none {
+  font-size: 11px;
+  color: #1c1c38;
+  text-align: right;
+}
+
+/* ── Reset button ── */
+.reset-btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 15px;
+  background: transparent;
+  color: #7c3aed;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 1.5px solid #2e1f5e;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.reset-btn:active {
+  transform: scale(0.985);
+  background: rgba(124, 58, 237, 0.08);
+  border-color: #7c3aed;
+}
+
+/* ── Mode toggle: 5-button variant ── */
+.mode-toggle.five-modes .mode-btn {
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  padding: 10px 2px;
+}
+
+/* ── Save Ticket button ── */
+.save-ticket-btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 15px;
+  background: transparent;
+  color: #34d399;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border: 1.5px solid rgba(52, 211, 153, 0.25);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.save-ticket-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.save-ticket-btn.saved {
+  color: #ffd700;
+  border-color: rgba(255, 215, 0, 0.3);
+  cursor: default;
+}
+
+.save-ticket-btn:not(:disabled):not(.saved):active {
+  background: rgba(52, 211, 153, 0.08);
+  border-color: #34d399;
+}
+
+/* ── Tickets mode: empty state ── */
+.tickets-empty-card {
+  align-items: center;
+  padding: 36px 20px;
+  gap: 10px;
+}
+
+.tickets-empty-icon {
+  font-size: 36px;
+  margin: 0;
+}
+
+.tickets-empty-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #5c5c7a;
+  margin: 0;
+}
+
+.tickets-empty-sub {
+  font-size: 12px;
+  color: #3a3a5a;
+  text-align: center;
+  margin: 0;
+}
+
+/* ── Tickets mode: list header ── */
+.tickets-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.refresh-tickets-btn {
+  background: transparent;
+  border: 1px solid #1c1c38;
+  color: #4a4a6a;
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.refresh-tickets-btn:hover  { color: #a78bfa; border-color: #3e2a6a; }
+.refresh-tickets-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* ── Ticket card ── */
+.my-ticket-card {
+  background: #0c0c1e;
+  border: 1px solid #1c1c38;
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.my-ticket-balls {
+  display: flex;
+  gap: 5px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.my-ticket-ball {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #111128;
+  border: 1.5px solid #2a1f50;
+  color: #7c5cbc;
+}
+
+.my-ticket-strong-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-left: 2px;
+}
+
+.my-ticket-strong {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #160d00;
+  border: 1.5px solid #78350f;
+  color: #d97706;
+}
+
+.my-ticket-strong-lbl {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #78350f;
+}
+
+.my-ticket-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.my-ticket-date {
+  font-size: 11px;
+  color: #3e3e60;
+  font-weight: 500;
+}
+
+.my-ticket-status {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  border-radius: 20px;
+  padding: 2px 9px;
+}
+
+.status-pending  { color: #7c3aed; background: rgba(124,58,237,0.1);  border: 1px solid rgba(124,58,237,0.2);  }
+.status-won      { color: #f59e0b; background: rgba(245,158,11,0.1);  border: 1px solid rgba(245,158,11,0.2);  }
+.status-lost     { color: #f87171; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.2); }
+.status-checked  { color: #34d399; background: rgba(52,211,153,0.1);  border: 1px solid rgba(52,211,153,0.2);  }
+
+/* ── Group cost row ── */
+.group-cost-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0 4px;
+  border-top: 1px solid #16162a;
+}
+
+.group-cost-label {
+  font-size: 12px;
+  color: #4a4a6a;
+  font-weight: 600;
+}
+
+.group-cost-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #0c0c1e;
+  border: 1px solid #1c1c38;
+  border-radius: 10px;
+  padding: 4px 10px;
+}
+
+.group-cost-prefix {
+  font-size: 13px;
+  color: #4a4a6a;
+  font-weight: 700;
+}
+
+.group-cost-input {
+  width: 52px;
+  background: transparent;
+  border: none;
+  color: #c8c8e0;
+  font-size: 14px;
+  font-weight: 800;
+  outline: none;
+  text-align: right;
+}
+
+/* ── Weekly ticket button ── */
+.weekly-ticket-btn {
+  width: 100%;
+  padding: 13px;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, #78350f 0%, #451a03 100%);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 14px;
+  color: #fbbf24;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+
+.weekly-ticket-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+.weekly-ticket-btn.saved {
+  background: linear-gradient(135deg, #065f46 0%, #022c22 100%);
+  border-color: rgba(52, 211, 153, 0.3);
+  color: #34d399;
+}
+
+.weekly-ticket-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── View navigation ── */
+.view-nav {
+  display: flex;
+  background: #0c0c1e;
+  border-bottom: 1px solid #1c1c38;
+  flex-shrink: 0;
+}
+
+.view-btn {
+  flex: 1;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #4a4a6a;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.view-btn.active {
+  color: #ffd700;
+  border-bottom-color: #ffd700;
+}
+
+.view-btn:not(.active):hover {
+  color: #7c5cbc;
+}

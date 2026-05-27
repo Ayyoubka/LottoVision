@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: lottovision-api
+    env: node
+    region: oregon
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false   # set manually in Render dashboard — contains secrets
+      - key: ALLOWED_ORIGIN
+        sync: false   # e.g. https://your-project.web.app
+      - key: ADMIN_BOOTSTRAP_EMAIL
+        sync: false   # e.g. ayyoubqa@gmail.com
