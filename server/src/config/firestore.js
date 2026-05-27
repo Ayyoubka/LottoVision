@@ -1,15 +1,10 @@
 /**
  * Firestore client initialisation.
  *
- * Local dev:
- *  1. Firebase Console → Project Settings → Service Accounts
- *     → Generate new private key → save as server/serviceAccountKey.json
- *  2. In server/.env set:
- *       GOOGLE_APPLICATION_CREDENTIALS=./serviceAccountKey.json
- *
- * Production (Render, Railway, etc.):
- *  Set FIREBASE_SERVICE_ACCOUNT_JSON to the full JSON contents of the
- *  service account key file (copy-paste the entire file as a single line).
+ * Priority order:
+ *  1. Render Secret File at /etc/secrets/serviceAccountKey.json
+ *  2. FIREBASE_SERVICE_ACCOUNT_JSON env var (JSON string)
+ *  3. GOOGLE_APPLICATION_CREDENTIALS env var (file path, local dev)
  *
  * When credentials are absent the module still loads cleanly;
  * isFirestoreReady() returns false and all repository calls are no-ops.
@@ -20,24 +15,42 @@ import { getFirestore }                  from 'firebase-admin/firestore'
 import { existsSync, readFileSync }      from 'fs'
 import { resolve }                       from 'path'
 
+const RENDER_SECRET_PATH = '/etc/secrets/serviceAccountKey.json'
+
 let _db = null
 
 function init() {
-  // Production: JSON string in env var (no filesystem required)
+  // 1. Render Secret File
+  if (existsSync(RENDER_SECRET_PATH)) {
+    console.log(`[Firestore] Secret file found at ${RENDER_SECRET_PATH}`)
+    try {
+      const serviceAccount = JSON.parse(readFileSync(RENDER_SECRET_PATH, 'utf8'))
+      if (!getApps().length) initializeApp({ credential: cert(serviceAccount) })
+      _db = getFirestore()
+      console.log('[Firestore] Firebase Admin initialized via Render secret file ✓')
+      return
+    } catch (err) {
+      console.warn('[Firestore] Failed to load Render secret file:', err.message)
+    }
+  } else {
+    console.warn(`[Firestore] Secret file missing at ${RENDER_SECRET_PATH}`)
+  }
+
+  // 2. Production env var: full JSON string
   const jsonString = process.env.FIREBASE_SERVICE_ACCOUNT_JSON
   if (jsonString) {
     try {
       const serviceAccount = JSON.parse(jsonString)
       if (!getApps().length) initializeApp({ credential: cert(serviceAccount) })
       _db = getFirestore()
-      console.log('[Firestore] Connected via FIREBASE_SERVICE_ACCOUNT_JSON ✓')
+      console.log('[Firestore] Firebase Admin initialized via FIREBASE_SERVICE_ACCOUNT_JSON ✓')
       return
     } catch (err) {
       console.warn('[Firestore] Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON:', err.message)
     }
   }
 
-  // Local dev: file path via GOOGLE_APPLICATION_CREDENTIALS
+  // 3. Local dev: file path via GOOGLE_APPLICATION_CREDENTIALS
   const credPath = process.env.GOOGLE_APPLICATION_CREDENTIALS
   if (!credPath) {
     console.warn('[Firestore] No credentials set — running without Firestore')
@@ -54,7 +67,7 @@ function init() {
     const serviceAccount = JSON.parse(readFileSync(absPath, 'utf8'))
     if (!getApps().length) initializeApp({ credential: cert(serviceAccount) })
     _db = getFirestore()
-    console.log('[Firestore] Connected via credentials file ✓')
+    console.log('[Firestore] Firebase Admin initialized via credentials file ✓')
   } catch (err) {
     console.warn('[Firestore] Initialisation failed:', err.message)
   }
