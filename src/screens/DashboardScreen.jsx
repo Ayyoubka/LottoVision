@@ -53,17 +53,26 @@ export default function DashboardScreen({ user }) {
     else
       setDrawErr(drawRes.reason?.message ?? 'Could not load draw')
 
+    // Resolve weekly ticket first — used as fallback for the banner when the
+    // tickets collection has no matching entry for this user.
+    const wt = weeklyRes.status === 'fulfilled' ? (weeklyRes.value.ticket ?? null) : null
+    setWeeklyTicket(wt)
+
     if (ticketRes.status === 'fulfilled') {
       const all = ticketRes.value.tickets
-      // Active ticket = marked active, or fallback to most recent pending
-      setActiveTicket(all.find(t => t.active === true) ?? all.find(t => t.status === 'pending') ?? null)
+      setActiveTicket(
+        all.find(t => t.active === true) ??
+        all.find(t => t.status === 'pending') ??
+        wt   // fall back to weekly_tickets definition so banner is never empty
+      )
+    } else {
+      setActiveTicket(wt)
     }
 
     if (membersRes.status === 'fulfilled')   setMembers(membersRes.value.members)
     if (settlementRes.status === 'fulfilled') setSettlement(settlementRes.value.settlement)
     if (pipelineRes.status === 'fulfilled')   setPipelineStatus(pipelineRes.value.status)
     if (historyRes.status === 'fulfilled')    setPipelineHistory(historyRes.value.runs ?? [])
-    if (weeklyRes.status === 'fulfilled')     setWeeklyTicket(weeklyRes.value.ticket ?? null)
     if (notifRes.status === 'fulfilled')      setNotificationStatus(notifRes.value)
 
     isFirstLoad.current = false
