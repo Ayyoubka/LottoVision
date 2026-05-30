@@ -14,7 +14,7 @@
  */
 
 import { fetchLatestDraw } from './paisScraper.js'
-import { saveDraw, getDraw } from './drawRepository.js'
+import { saveDraw, getDraw, getRecentDraws } from './drawRepository.js'
 import { isFirestoreReady } from '../config/firestore.js'
 
 /**
@@ -83,6 +83,7 @@ export async function syncLatestDraw() {
   console.log('[LottoScraper] Fetching latest draw from pais.co.il …')
   const t1 = Date.now()
   let draw
+  let usedFallback = false
 
   try {
     draw = await fetchLatestDraw()
@@ -96,11 +97,29 @@ export async function syncLatestDraw() {
       err.message?.includes('network')
     )
     const tag = isNetwork ? 'NETWORK_ERROR' : 'PARSE_ERROR'
-    console.error(`[LottoScraper] Scrape failed (${tag}): ${err.message}`)
-    const wrapped     = new Error(`${tag}: ${err.message}`)
-    wrapped.code      = tag
-    wrapped.scrapeMs  = Date.now() - t1
-    throw wrapped
+    console.error(`[LottoScraper] Scrape failed (${tag}) after ${Date.now() - t1}ms: ${err.message}`)
+
+    // Fallback: use most recent draw already stored in Firestore so the
+    // pipeline can still check the ticket and send the Telegram notification
+    // even when pais.co.il is slow or unreachable.
+    console.warn('[LottoScraper] Falling back to most recent Firestore draw …')
+    try {
+      const recent = await getRecentDraws(1)
+      if (recent.length > 0) {
+        draw = recent[0]
+        usedFallback = true
+        console.warn(`[LottoScraper] Firestore fallback → draw #${draw.drawId} (${draw.date})`)
+      }
+    } catch (fbErr) {
+      console.error(`[LottoScraper] Firestore fallback also failed: ${fbErr.message}`)
+    }
+
+    if (!draw) {
+      const wrapped    = new Error(`${tag}: ${err.message}`)
+      wrapped.code     = tag
+      wrapped.scrapeMs = Date.now() - t1
+      throw wrapped
+    }
   }
 
   const scrapeMs = Date.now() - t1
@@ -112,16 +131,31 @@ export async function syncLatestDraw() {
     `  (${scrapeMs}ms)`
   )
 
-  // ── 2. Validate parsed data ───────────────────────────────────────────────
-  try {
-    validateDraw(draw)
-    console.log(`[LottoScraper] Validation passed for draw #${draw.drawId}`)
-  } catch (err) {
-    console.error(`[LottoScraper] ${err.message}`)
-    throw err
+  // ── 2. Validate parsed data (skip when using Firestore fallback) ──────────
+  if (!usedFallback) {
+    try {
+      validateDraw(draw)
+      console.log(`[LottoScraper] Validation passed for draw #${draw.drawId}`)
+    } catch (err) {
+      console.error(`[LottoScraper] ${err.message}`)
+      throw err
+    }
   }
 
-  // ── 2. Check for duplicate before writing ─────────────────────────────────
+  // ── 3. Check for duplicate / save ─────────────────────────────────────────
+  // Skip Firestore write when we are already using a stored draw as fallback.
+  if (usedFallback) {
+    console.log(`[LottoScraper] Using fallback draw #${draw.drawId} — skipping Firestore write`)
+    return {
+      inserted:  false,
+      skipped:   true,
+      draw,
+      scrapeMs,
+      totalMs:   Date.now() - t0,
+      fallback:  true,
+    }
+  }
+
   // saveDraw() already does an internal exists-check, but we do an explicit
   // pre-read so we can return the stored document on a skip (avoids a second
   // round-trip inside saveDraw when we need the full record anyway).
@@ -138,11 +172,7 @@ export async function syncLatestDraw() {
     }
   }
 
-  // ── 3. Save to Firestore ──────────────────────────────────────────────────
-  // Note: the draw document uses `strongNumber` (not `strong`) and `fetchedAt`
-  // (not `createdAt`) to stay consistent with the existing collection schema
-  // that analytics, simulation, and backfill all depend on.
-  // `jackpot` is not scraped from pais.co.il yet — reserved for future expansion.
+  // ── 4. Save to Firestore ──────────────────────────────────────────────────
   const saveResult = await saveDraw(draw)
 
   if (saveResult.saved) {
@@ -156,9 +186,7 @@ export async function syncLatestDraw() {
     }
   }
 
-  // saveDraw returned saved:false despite no existing doc — race condition
-  // (two concurrent requests both passed the getDraw check). Fetch the stored
-  // version so the caller still gets a consistent draw object.
+  // saveDraw returned saved:false despite no existing doc — race condition.
   console.log(`[LottoScraper] Draw #${draw.drawId} race-condition duplicate — fetching stored record`)
   const storedAfterRace = await getDraw(draw.drawId)
   return {

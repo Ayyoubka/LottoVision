@@ -75,34 +75,46 @@ export async function runLatestPipeline(source = 'manual') {
     source,
   }
 
+  const ts = () => `+${Date.now() - startedAt}ms`
+
   try {
     // ────────────────────────────────────────────────────────────────────────
-    // Stage 1 — Scrape & save draw
+    // START
     // ────────────────────────────────────────────────────────────────────────
-    console.log(`[Pipeline] ── Stage 1: Scraping latest draw (source=${source}) ──`)
-    const { inserted, draw } = await syncLatestDraw()
+    console.log(`[Pipeline] ════ START  source=${source}  ${new Date().toISOString()} ════`)
+
+    // ────────────────────────────────────────────────────────────────────────
+    // Stage 1 — Fetch draw (scrape pais.co.il or Firestore fallback)
+    // ────────────────────────────────────────────────────────────────────────
+    console.log(`[Pipeline] [${ts()}] Stage 1 START — fetch draw`)
+    const syncResult = await syncLatestDraw()
+    const { inserted, draw, fallback } = syncResult
 
     result.drawId   = draw.drawId
     result.drawDate = draw.date
 
-    if (inserted) {
+    if (fallback) {
+      result.drawSkipped = true
+      console.log(`[Pipeline] [${ts()}] Stage 1 DONE — scrape timed out, using cached draw #${draw.drawId} (${draw.date})`)
+    } else if (inserted) {
       result.drawInserted = true
-      console.log(`[Pipeline] Draw #${draw.drawId} (${draw.date}) inserted`)
+      console.log(`[Pipeline] [${ts()}] Stage 1 DONE — draw #${draw.drawId} (${draw.date}) inserted (scrape: ${syncResult.scrapeMs}ms)`)
     } else {
       result.drawSkipped = true
-      console.log(`[Pipeline] Draw #${draw.drawId} already exists — continuing`)
+      console.log(`[Pipeline] [${ts()}] Stage 1 DONE — draw #${draw.drawId} already in Firestore (scrape: ${syncResult.scrapeMs}ms)`)
     }
 
     // ────────────────────────────────────────────────────────────────────────
-    // Stage 2 — Find active group ticket
+    // Stage 2 — Load active ticket
     // ────────────────────────────────────────────────────────────────────────
-    console.log(`[Pipeline] ── Stage 2: Finding ticket for draw #${draw.drawId} ──`)
+    console.log(`[Pipeline] [${ts()}] Stage 2 START — load active ticket for draw #${draw.drawId}`)
     let ticket = await getPendingTicketForDraw(draw.drawId)
 
     if (!ticket) {
+      console.log(`[Pipeline] [${ts()}] No ticket linked to draw #${draw.drawId} — checking unlinked pending tickets`)
       const unlinked = await getLatestPendingTicket()
       if (unlinked && !unlinked.drawId) {
-        console.log(`[Pipeline] Auto-linking ticket ${unlinked.id} → draw #${draw.drawId}`)
+        console.log(`[Pipeline] [${ts()}] Auto-linking ticket ${unlinked.id} → draw #${draw.drawId}`)
         await linkTicketToDraw(unlinked.id, draw.drawId)
         ticket = { ...unlinked, drawId: draw.drawId }
         result.ticketLinked = true
@@ -110,10 +122,10 @@ export async function runLatestPipeline(source = 'manual') {
     }
 
     if (!ticket) {
-      // Last fallback: auto-create a ticket from the active weekly_ticket definition
+      console.log(`[Pipeline] [${ts()}] No unlinked ticket — checking weekly_ticket definition`)
       const weeklyTicket = await getActiveWeeklyTicket()
       if (weeklyTicket) {
-        console.log(`[Pipeline] Auto-creating ticket from weekly_ticket ${weeklyTicket.id}`)
+        console.log(`[Pipeline] [${ts()}] Auto-creating ticket from weekly_ticket ${weeklyTicket.id}`)
         ticket = await saveTicket({
           uid:          weeklyTicket.createdBy,
           drawId:       draw.drawId,
@@ -123,51 +135,51 @@ export async function runLatestPipeline(source = 'manual') {
           cost:         weeklyTicket.cost,
         })
         result.ticketLinked = true
-        console.log(`[Pipeline] Auto-created ticket ${ticket.id} for draw #${draw.drawId}`)
+        console.log(`[Pipeline] [${ts()}] Auto-created ticket ${ticket.id} for draw #${draw.drawId}`)
       }
     }
 
     if (!ticket) {
-      console.log('[Pipeline] No pending ticket found — pipeline stopped at stage 2')
+      console.log(`[Pipeline] [${ts()}] Stage 2 DONE — no ticket found, pipeline stopped`)
       await persistResult({ ...result, stoppedAt: 'NO_TICKET' })
       return result
     }
 
     result.ticketFound = true
-    console.log(`[Pipeline] Ticket ${ticket.id}  checked=${ticket.checked}  drawId=${ticket.drawId}`)
+    console.log(`[Pipeline] [${ts()}] Stage 2 DONE — ticket ${ticket.id}  checked=${ticket.checked}  drawId=${ticket.drawId}`)
 
     // ────────────────────────────────────────────────────────────────────────
-    // Stage 3 — Check ticket (prize engine)
+    // Stage 3 — Calculate result (prize engine)
     // ────────────────────────────────────────────────────────────────────────
     if (ticket.checked) {
       result.ticketAlreadyChecked = true
       result.winnings = ticket.winnings ?? 0
-      console.log(`[Pipeline] ── Stage 3: Ticket already checked  winnings=₪${result.winnings} ──`)
+      console.log(`[Pipeline] [${ts()}] Stage 3 SKIP — ticket already checked  winnings=₪${result.winnings}`)
     } else {
-      console.log(`[Pipeline] ── Stage 3: Checking ticket ${ticket.id} ──`)
+      console.log(`[Pipeline] [${ts()}] Stage 3 START — checking ticket ${ticket.id} against draw #${draw.drawId}`)
       const checkResult    = await checkTicket(ticket.id, ticket.uid)
       result.ticketChecked = true
       result.winnings      = checkResult.winnings
       result.settlementCreated = true
       console.log(
-        `[Pipeline] Check done  status=${checkResult.status}` +
+        `[Pipeline] [${ts()}] Stage 3 DONE — status=${checkResult.status}` +
         `  tier=${checkResult.tier ?? 'none'}  winnings=₪${result.winnings}`
       )
     }
 
     // ────────────────────────────────────────────────────────────────────────
-    // Stage 4 — Settlement (explicit path for already-checked tickets)
+    // Stage 4 — Save settlement (explicit path for already-checked tickets)
     // ────────────────────────────────────────────────────────────────────────
     if (result.ticketAlreadyChecked) {
-      console.log(`[Pipeline] ── Stage 4: Settlement for draw #${draw.drawId} ──`)
+      console.log(`[Pipeline] [${ts()}] Stage 4 START — running settlement for draw #${draw.drawId}`)
       try {
         await runSettlement({ ticketId: ticket.id, drawId: draw.drawId, winnings: result.winnings })
         result.settlementCreated = true
-        console.log('[Pipeline] Settlement created')
+        console.log(`[Pipeline] [${ts()}] Stage 4 DONE — settlement created`)
       } catch (e) {
         if (e.code === 'ALREADY_SETTLED') {
           result.settlementSkipped = true
-          console.log('[Pipeline] Settlement already exists — skipped')
+          console.log(`[Pipeline] [${ts()}] Stage 4 SKIP — settlement already exists`)
         } else {
           throw e
         }
@@ -184,14 +196,9 @@ export async function runLatestPipeline(source = 'manual') {
       result.netResult   = result.winnings - GROUP_TICKET_COST
     }
 
-    console.log(
-      `[Pipeline] ── Complete ──  winnings=₪${result.winnings}` +
-      `  netResult=₪${result.netResult}  memberDelta=₪${result.memberDelta}`
-    )
-
   } catch (err) {
     result.error = err.message
-    console.error(`[Pipeline] Fatal error: ${err.message}`)
+    console.error(`[Pipeline] [${ts()}] FATAL ERROR: ${err.message}`)
   } finally {
     _running = false
     const finishedAt  = Date.now()
@@ -199,7 +206,21 @@ export async function runLatestPipeline(source = 'manual') {
 
     await persistResult(result)
     await writeLog(result, startedAt, finishedAt)
+
+    // ────────────────────────────────────────────────────────────────────────
+    // Stage 5 — Send Telegram notification
+    // ────────────────────────────────────────────────────────────────────────
+    console.log(`[Pipeline] [${ts()}] Stage 5 START — sending Telegram notification`)
     await notifyPipelineComplete(result)
+    console.log(`[Pipeline] [${ts()}] Stage 5 DONE — Telegram notification sent`)
+
+    // ── FINISH ───────────────────────────────────────────────────────────────
+    console.log(
+      `[Pipeline] ════ FINISH  durationMs=${result.durationMs}` +
+      `  drawId=${result.drawId}  winnings=₪${result.winnings}` +
+      `  netResult=₪${result.netResult}` +
+      `  error=${result.error ?? 'none'} ════`
+    )
   }
 
   return result
