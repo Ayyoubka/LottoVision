@@ -51,7 +51,7 @@ export default function NotificationsCard({ status, user, onRefresh }) {
           disabled={testing || !telegram?.configured}
           title={telegram?.configured ? 'Send test message' : 'Telegram not configured'}
         >
-          {testing ? '…' : 'Test'}
+          {testing ? '…' : 'Send Test Telegram'}
         </button>
       </div>
 
@@ -82,10 +82,21 @@ export default function NotificationsCard({ status, user, onRefresh }) {
         )}
       </div>
 
+      {/* Last sent (most recent attempt, success or fail) */}
+      {telegram?.lastSent && (
+        <div className="db-notif-last-row">
+          <span className="db-notif-last-key">Last sent</span>
+          <span className="db-notif-last-val">
+            {formatTs(telegram.lastSent.sentAt)}
+            {telegram.lastSent.drawId ? ` · Draw #${telegram.lastSent.drawId}` : ''}
+          </span>
+        </div>
+      )}
+
       {/* Last success */}
       {telegram?.lastSuccess && (
         <div className="db-notif-last-row">
-          <span className="db-notif-last-key">Last sent</span>
+          <span className="db-notif-last-key">Last success</span>
           <span className="db-notif-last-val db-notif-success-val">
             {formatTs(telegram.lastSuccess.sentAt)}
             {telegram.lastSuccess.drawId ? ` · Draw #${telegram.lastSuccess.drawId}` : ''}

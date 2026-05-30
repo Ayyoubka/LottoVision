@@ -16,6 +16,7 @@ import {
 import {
   getNotificationLogs,
   getChannelStatus,
+  getLastNotificationByChannel,
 } from '../repositories/notificationLogRepository.js'
 
 const router = Router()
@@ -67,9 +68,10 @@ router.post('/test', async (req, res) => {
  */
 router.get('/status', async (req, res) => {
   try {
-    const [telegramVerify, telegramStatus] = await Promise.all([
+    const [telegramVerify, telegramStatus, telegramLastSent] = await Promise.all([
       isTelegramConfigured() ? verifyTelegramConnection() : Promise.resolve({ ok: false }),
       getChannelStatus('telegram'),
+      getLastNotificationByChannel('telegram'),
     ])
 
     res.json({
@@ -79,6 +81,7 @@ router.get('/status', async (req, res) => {
           connected:   telegramVerify.ok,
           botName:     telegramVerify.botName ?? null,
           error:       telegramVerify.error   ?? null,
+          lastSent:    telegramLastSent,
           lastSuccess: telegramStatus.lastSuccess,
           lastFailure: telegramStatus.lastFailure,
         },
