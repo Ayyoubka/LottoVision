@@ -1,0 +1,31 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "notification_logs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "channel", "order": "ASCENDING" },
+        { "fieldPath": "sentAt",  "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "notification_logs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "channel", "order": "ASCENDING" },
+        { "fieldPath": "success", "order": "ASCENDING" },
+        { "fieldPath": "sentAt",  "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "notification_logs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "channel", "order": "ASCENDING" },
+        { "fieldPath": "drawId",  "order": "ASCENDING" },
+        { "fieldPath": "success", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
