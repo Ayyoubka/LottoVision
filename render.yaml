@@ -18,3 +18,5 @@ services:
         sync: false   # e.g. https://your-project.web.app
       - key: ADMIN_BOOTSTRAP_EMAIL
         sync: false   # e.g. ayyoubqa@gmail.com
+      - key: IMPORT_API_KEY
+        sync: false   # shared secret for POST /api/import/draw — must match GitHub Actions secret

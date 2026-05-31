@@ -7,6 +7,7 @@ import ticketsRoute      from './routes/tickets.js'
 import settlementsRoute  from './routes/settlements.js'
 import pipelineRoute     from './routes/pipeline.js'
 import notificationsRoute from './routes/notifications.js'
+import importRoute        from './routes/import.js'
 
 const app = express()
 
@@ -21,6 +22,7 @@ app.use('/api/tickets',     ticketsRoute)
 app.use('/api/settlements', settlementsRoute)
 app.use('/api/pipeline',       pipelineRoute)
 app.use('/api/notifications',  notificationsRoute)
+app.use('/api/import',         importRoute)
 app.use('/api',                lottoRoute)
 
 app.get('/health', (_, res) => res.json({ status: 'ok' }))

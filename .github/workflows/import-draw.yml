@@ -1,0 +1,48 @@
+name: Import Lotto Draw
+
+# Israel uses UTC+2 in winter (IST) and UTC+3 in summer (IDT).
+# Draw results are published ~23:00 IL. Both entries fire at 23:15 IL;
+# the pipeline is idempotent so if both run on the same night the second
+# is a no-op (draw already exists in Firestore).
+#
+# Tue/Sat 23:15 IST (winter, UTC+2) = 21:15 UTC
+# Tue/Sat 23:15 IDT (summer, UTC+3) = 20:15 UTC
+
+on:
+  schedule:
+    - cron: '15 20 * * 2'   # Tuesday   23:15 IDT (summer)
+    - cron: '15 20 * * 6'   # Saturday  23:15 IDT (summer)
+    - cron: '15 21 * * 2'   # Tuesday   23:15 IST (winter)
+    - cron: '15 21 * * 6'   # Saturday  23:15 IST (winter)
+
+  # Manual trigger — use drawId to recover a specific missing draw (e.g. #3930)
+  workflow_dispatch:
+    inputs:
+      drawId:
+        description: 'Draw ID to import (leave empty to import latest)'
+        required: false
+        default: ''
+
+jobs:
+  import-draw:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: .github/scripts
+
+      - name: Scrape draw and send to backend
+        run: node importDraw.js
+        working-directory: .github/scripts
+        env:
+          BACKEND_URL:    ${{ secrets.BACKEND_URL }}
+          IMPORT_API_KEY: ${{ secrets.IMPORT_API_KEY }}
+          DRAW_ID:        ${{ inputs.drawId }}

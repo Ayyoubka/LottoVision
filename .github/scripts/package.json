@@ -1,0 +1,10 @@
+{
+  "name": "lotto-import-draw",
+  "version": "1.0.0",
+  "description": "Scrape pais.co.il and relay draw to backend",
+  "main": "importDraw.js",
+  "dependencies": {
+    "axios": "^1.7.0",
+    "cheerio": "^1.0.0"
+  }
+}

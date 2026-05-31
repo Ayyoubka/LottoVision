@@ -18,6 +18,7 @@
  */
 
 import { syncLatestDraw }    from './lottoScraper.js'
+import { getDraw }           from './drawRepository.js'
 import { checkTicket }       from './ticketService.js'
 import { runSettlement, GROUP_TICKET_COST } from './settlementService.js'
 import {
@@ -215,6 +216,180 @@ export async function runLatestPipeline(source = 'manual') {
     console.log(`[Pipeline] [${ts()}] Stage 5 DONE — Telegram notification sent`)
 
     // ── FINISH ───────────────────────────────────────────────────────────────
+    console.log(
+      `[Pipeline] ════ FINISH  durationMs=${result.durationMs}` +
+      `  drawId=${result.drawId}  winnings=₪${result.winnings}` +
+      `  netResult=₪${result.netResult}` +
+      `  error=${result.error ?? 'none'} ════`
+    )
+  }
+
+  return result
+}
+
+// ── Pipeline (Firestore-only entry point) ──────────────────────────────────
+
+/**
+ * Run the full weekly pipeline for a draw that is already stored in Firestore.
+ *
+ * Stage 1 reads the draw from Firestore by drawId — no HTTP request to
+ * pais.co.il is made. Used when an external relay (GitHub Actions) has already
+ * imported the draw. Stages 2–5 are identical to runLatestPipeline().
+ *
+ * @param {number} drawId
+ * @param {string} [source]
+ * @returns {Promise<PipelineResult>}
+ */
+export async function runPipelineForDraw(drawId, source = 'github-actions') {
+  if (_running) {
+    console.log(`[Pipeline] Already running — skipping ${source} trigger`)
+    return { skipped: true, reason: 'ALREADY_RUNNING', source }
+  }
+
+  _running = true
+  const startedAt = Date.now()
+
+  /** @type {PipelineResult} */
+  const result = {
+    drawInserted:         false,
+    drawSkipped:          true,
+    drawId:               null,
+    drawDate:             null,
+    ticketFound:          false,
+    ticketLinked:         false,
+    ticketChecked:        false,
+    ticketAlreadyChecked: false,
+    settlementCreated:    false,
+    settlementSkipped:    false,
+    winnings:             0,
+    netResult:            0,
+    memberDelta:          0,
+    error:                null,
+    source,
+  }
+
+  const ts = () => `+${Date.now() - startedAt}ms`
+
+  try {
+    console.log(`[Pipeline] ════ START  source=${source}  drawId=${drawId}  ${new Date().toISOString()} ════`)
+
+    // ── Stage 1 — Load draw from Firestore (no pais.co.il request) ──────────
+    console.log(`[Pipeline] [${ts()}] Stage 1 START — load draw #${drawId} from Firestore`)
+    const draw = await getDraw(drawId)
+
+    if (!draw) {
+      result.error = `Draw #${drawId} not found in Firestore`
+      console.error(`[Pipeline] [${ts()}] Stage 1 FAILED — ${result.error}`)
+      await persistResult({ ...result, stoppedAt: 'DRAW_NOT_FOUND' })
+      return result
+    }
+
+    result.drawId   = draw.drawId
+    result.drawDate = draw.date
+    console.log(`[Pipeline] [${ts()}] Stage 1 DONE — draw #${draw.drawId} (${draw.date}) loaded from Firestore`)
+
+    // ── Stage 2 — Load active ticket ─────────────────────────────────────────
+    console.log(`[Pipeline] [${ts()}] Stage 2 START — load active ticket for draw #${draw.drawId}`)
+    let ticket = await getPendingTicketForDraw(draw.drawId)
+
+    if (!ticket) {
+      console.log(`[Pipeline] [${ts()}] No ticket linked to draw #${draw.drawId} — checking unlinked pending tickets`)
+      const unlinked = await getLatestPendingTicket()
+      if (unlinked && !unlinked.drawId) {
+        console.log(`[Pipeline] [${ts()}] Auto-linking ticket ${unlinked.id} → draw #${draw.drawId}`)
+        await linkTicketToDraw(unlinked.id, draw.drawId)
+        ticket = { ...unlinked, drawId: draw.drawId }
+        result.ticketLinked = true
+      }
+    }
+
+    if (!ticket) {
+      console.log(`[Pipeline] [${ts()}] No unlinked ticket — checking weekly_ticket definition`)
+      const weeklyTicket = await getActiveWeeklyTicket()
+      if (weeklyTicket) {
+        console.log(`[Pipeline] [${ts()}] Auto-creating ticket from weekly_ticket ${weeklyTicket.id}`)
+        ticket = await saveTicket({
+          uid:          weeklyTicket.createdBy,
+          drawId:       draw.drawId,
+          numbers:      weeklyTicket.numbers,
+          strongNumber: weeklyTicket.strongNumber,
+          active:       false,
+          cost:         weeklyTicket.cost,
+        })
+        result.ticketLinked = true
+        console.log(`[Pipeline] [${ts()}] Auto-created ticket ${ticket.id} for draw #${draw.drawId}`)
+      }
+    }
+
+    if (!ticket) {
+      console.log(`[Pipeline] [${ts()}] Stage 2 DONE — no ticket found, pipeline stopped`)
+      await persistResult({ ...result, stoppedAt: 'NO_TICKET' })
+      return result
+    }
+
+    result.ticketFound = true
+    console.log(`[Pipeline] [${ts()}] Stage 2 DONE — ticket ${ticket.id}  checked=${ticket.checked}  drawId=${ticket.drawId}`)
+
+    // ── Stage 3 — Calculate result (prize engine) ─────────────────────────────
+    if (ticket.checked) {
+      result.ticketAlreadyChecked = true
+      result.winnings = ticket.winnings ?? 0
+      console.log(`[Pipeline] [${ts()}] Stage 3 SKIP — ticket already checked  winnings=₪${result.winnings}`)
+    } else {
+      console.log(`[Pipeline] [${ts()}] Stage 3 START — checking ticket ${ticket.id} against draw #${draw.drawId}`)
+      const checkResult    = await checkTicket(ticket.id, ticket.uid)
+      result.ticketChecked = true
+      result.winnings      = checkResult.winnings
+      result.settlementCreated = true
+      console.log(
+        `[Pipeline] [${ts()}] Stage 3 DONE — status=${checkResult.status}` +
+        `  tier=${checkResult.tier ?? 'none'}  winnings=₪${result.winnings}`
+      )
+    }
+
+    // ── Stage 4 — Save settlement (explicit path for already-checked tickets) ─
+    if (result.ticketAlreadyChecked) {
+      console.log(`[Pipeline] [${ts()}] Stage 4 START — running settlement for draw #${draw.drawId}`)
+      try {
+        await runSettlement({ ticketId: ticket.id, drawId: draw.drawId, winnings: result.winnings })
+        result.settlementCreated = true
+        console.log(`[Pipeline] [${ts()}] Stage 4 DONE — settlement created`)
+      } catch (e) {
+        if (e.code === 'ALREADY_SETTLED') {
+          result.settlementSkipped = true
+          console.log(`[Pipeline] [${ts()}] Stage 4 SKIP — settlement already exists`)
+        } else {
+          throw e
+        }
+      }
+    }
+
+    // ── Populate reporting fields from settlement doc ─────────────────────────
+    const settlement = await getLatestSettlement()
+    if (settlement?.drawId === draw.drawId) {
+      result.memberDelta = settlement.memberResults?.[0]?.delta ?? 0
+      result.netResult   = settlement.netResult
+    } else {
+      result.memberDelta = Math.round(((result.winnings - GROUP_TICKET_COST) / 7) * 100) / 100
+      result.netResult   = result.winnings - GROUP_TICKET_COST
+    }
+
+  } catch (err) {
+    result.error = err.message
+    console.error(`[Pipeline] [${ts()}] FATAL ERROR: ${err.message}`)
+  } finally {
+    _running = false
+    const finishedAt  = Date.now()
+    result.durationMs = finishedAt - startedAt
+
+    await persistResult(result)
+    await writeLog(result, startedAt, finishedAt)
+
+    // ── Stage 5 — Send Telegram notification ─────────────────────────────────
+    console.log(`[Pipeline] [${ts()}] Stage 5 START — sending Telegram notification`)
+    await notifyPipelineComplete(result)
+    console.log(`[Pipeline] [${ts()}] Stage 5 DONE — Telegram notification sent`)
+
     console.log(
       `[Pipeline] ════ FINISH  durationMs=${result.durationMs}` +
       `  drawId=${result.drawId}  winnings=₪${result.winnings}` +
