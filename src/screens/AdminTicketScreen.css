@@ -540,3 +540,104 @@
   border-color: rgba(74, 74, 106, 0.3);
   color: #4a4a6a;
 }
+
+/* ── Deposits screen ── */
+.adm-select {
+  width: 100%;
+  background: #16162a;
+  border: 1px solid #2c2c48;
+  border-radius: 10px;
+  color: #c8c8e0;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 12px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a4a6a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.adm-select:focus { border-color: #7c3aed; }
+
+.adm-deposit-hint {
+  font-size: 12px;
+  color: #4a4a6a;
+  margin: -2px 0 2px;
+}
+
+.adm-hint-pos { color: #34d399; font-weight: 700; }
+.adm-hint-neg { color: #f87171; font-weight: 700; }
+
+.adm-success {
+  font-size: 12px;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.08);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+.adm-deposit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.adm-deposit-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid #16162a;
+  gap: 8px;
+}
+
+.adm-deposit-row:last-child { border-bottom: none; }
+
+.adm-deposit-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.adm-deposit-name {
+  font-size: 13px;
+  color: #c8c8e0;
+  font-weight: 600;
+}
+
+.adm-deposit-note {
+  font-size: 11px;
+  color: #4a4a6a;
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adm-deposit-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.adm-deposit-amount {
+  font-size: 14px;
+  font-weight: 800;
+  color: #34d399;
+}
+
+.adm-deposit-date {
+  font-size: 10px;
+  color: #3e3e60;
+}

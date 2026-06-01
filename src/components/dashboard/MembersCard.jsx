@@ -50,8 +50,9 @@ export default function MembersCard({ members, loading, onBalanceUpdated, user, 
         <>
           <div className="db-members-list">
             {members.map(m => {
-              const lastDelta = lastDeltas[m.id] ?? null
-              const pl        = round2((m.totalWon ?? 0) - (m.totalPaid ?? 0))
+              const lastDelta      = lastDeltas[m.id] ?? null
+              const pl            = round2((m.totalWon ?? 0) - (m.totalPaid ?? 0))
+              const totalDeposited = m.totalDeposited ?? 0
 
               return (
                 <div key={m.id ?? m.name} className="db-member-row">
@@ -116,7 +117,7 @@ export default function MembersCard({ members, loading, onBalanceUpdated, user, 
                       <div className="db-member-stat">
                         <span className="db-stat-label">Deposits</span>
                         <span className="db-stat-value db-stat-muted">
-                          ₪{(m.totalPaid ?? 0).toLocaleString()}
+                          {totalDeposited > 0 ? `₪${totalDeposited.toLocaleString()}` : '—'}
                         </span>
                       </div>
                     </div>

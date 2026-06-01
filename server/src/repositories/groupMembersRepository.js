@@ -17,7 +17,7 @@
  */
 
 import { getDb, isFirestoreReady } from '../config/firestore.js'
-import { Timestamp }               from 'firebase-admin/firestore'
+import { Timestamp, FieldValue }   from 'firebase-admin/firestore'
 
 const COLLECTION = 'groupMembers'
 
@@ -57,6 +57,24 @@ export async function updateMemberBalance(id, { balance, totalPaid, totalWon }) 
     totalPaid,
     totalWon,
     updatedAt: Timestamp.now(),
+  })
+}
+
+/**
+ * Apply a cash deposit: atomically increment balance and totalDeposited.
+ * Uses FieldValue.increment so no read-then-write race is possible.
+ *
+ * totalPaid / totalWon are settlement-only stats and are never touched here.
+ *
+ * @param {string} id      groupMembers document ID
+ * @param {number} amount  ILS, positive
+ */
+export async function applyDeposit(id, amount) {
+  if (!isFirestoreReady()) return
+  await getDb().collection(COLLECTION).doc(id).update({
+    balance:        FieldValue.increment(amount),
+    totalDeposited: FieldValue.increment(amount),
+    updatedAt:      Timestamp.now(),
   })
 }
 
