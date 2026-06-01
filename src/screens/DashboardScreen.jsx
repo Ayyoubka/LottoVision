@@ -148,6 +148,7 @@ export default function DashboardScreen({ user }) {
         loading={initialLoading && !members}
         user={user}
         onBalanceUpdated={setMembers}
+        settlement={settlement}
       />
 
     </div>

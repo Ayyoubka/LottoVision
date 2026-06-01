@@ -180,14 +180,49 @@
 
 .db-member-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 9px 0;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 0;
   border-bottom: 1px solid #1c1c32;
 }
 
 .db-member-row:last-child {
   border-bottom: none;
+}
+
+.db-member-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.db-member-stats {
+  display: flex;
+}
+
+.db-member-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.db-stat-label {
+  font-size: 10px;
+  color: #3e3e60;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.db-stat-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: #c8c8e0;
+}
+
+.db-stat-muted {
+  color: #4a4a6a;
 }
 
 .db-member-name {
