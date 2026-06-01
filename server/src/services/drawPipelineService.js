@@ -132,6 +132,7 @@ export async function runLatestPipeline(source = 'manual') {
           drawId:       draw.drawId,
           numbers:      weeklyTicket.numbers,
           strongNumber: weeklyTicket.strongNumber,
+          lines:        weeklyTicket.lines ?? null,
           active:       false,
           cost:         weeklyTicket.cost,
         })
@@ -313,6 +314,7 @@ export async function runPipelineForDraw(drawId, source = 'github-actions') {
           drawId:       draw.drawId,
           numbers:      weeklyTicket.numbers,
           strongNumber: weeklyTicket.strongNumber,
+          lines:        weeklyTicket.lines ?? null,
           active:       false,
           cost:         weeklyTicket.cost,
         })

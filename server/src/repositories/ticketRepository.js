@@ -38,16 +38,24 @@ const COLLECTION = 'tickets'
 /**
  * Persist a new ticket document. Returns the saved ticket with its generated id.
  */
-export async function saveTicket({ uid, drawId, numbers, strongNumber, active = false, cost = null }) {
+export async function saveTicket({ uid, drawId, numbers, strongNumber, lines, active = false, cost = null }) {
   const db     = getDb()
   const docRef = db.collection(COLLECTION).doc()
+
+  // Normalise: when lines provided, derive flat fields from line 1 for
+  // backward compatibility with any existing reader.
+  const hasLines   = Array.isArray(lines) && lines.length > 0
+  const firstLine  = hasLines ? lines[0] : null
+  const mainNums   = hasLines ? firstLine.numbers  : numbers
+  const mainStrong = hasLines ? firstLine.strongNumber : strongNumber
 
   const ticket = {
     id:           docRef.id,
     uid,
     drawId:       drawId ?? null,
-    numbers:      [...numbers].sort((a, b) => a - b),
-    strongNumber,
+    numbers:      [...mainNums].sort((a, b) => a - b),
+    strongNumber: mainStrong,
+    ...(hasLines && { lines }),   // only stored when multi-line
     createdAt:    Timestamp.now(),
 
     checked:      false,
@@ -56,9 +64,8 @@ export async function saveTicket({ uid, drawId, numbers, strongNumber, active = 
     winnings:     0,
     status:       'pending',
 
-    // Active weekly ticket marker
     active,
-    cost,           // total group cost for this week (ILS), null = use default
+    cost,
 
     groupId:      null,
     prizeClass:   null,
@@ -206,6 +213,7 @@ export async function updateTicketCheckResult(ticketId, {
   prizeLabel,
   winnings,
   drawDate,
+  linesResults,   // optional: per-line breakdown for multi-line tickets
 }) {
   if (!isFirestoreReady()) return
 
@@ -214,11 +222,12 @@ export async function updateTicketCheckResult(ticketId, {
     checkedAt:    Timestamp.now(),
     matchedCount,
     matchedStrong,
-    tier:         tier       ?? null,
-    prizeClass:   prizeClass ?? null,
-    prizeLabel:   prizeLabel ?? null,
-    winnings:     winnings   ?? 0,
-    status:       winnings > 0 ? 'won' : 'lost',
-    drawDate:     drawDate   ?? null,
+    tier:         tier         ?? null,
+    prizeClass:   prizeClass   ?? null,
+    prizeLabel:   prizeLabel   ?? null,
+    winnings:     winnings     ?? 0,
+    status:       (winnings ?? 0) > 0 ? 'won' : 'lost',
+    drawDate:     drawDate     ?? null,
+    ...(linesResults && { linesResults }),
   })
 }

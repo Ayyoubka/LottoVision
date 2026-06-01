@@ -7,6 +7,7 @@ import { saveTicket, getUserTickets, getTicketById, updateTicketCheckResult, arc
 import { getDraw }             from './drawRepository.js'
 import { compareTicketToDraw } from './prizeEngine.js'
 import { runSettlement }       from './settlementService.js'
+import { getPrizeTable }       from '../repositories/prizeTableRepository.js'
 import { isFirestoreReady }    from '../config/firestore.js'
 
 // ── Validation ─────────────────────────────────────────────────────────────
@@ -172,17 +173,37 @@ export async function checkTicket(ticketId, uid) {
   )
 
   // ── 5. Run prize engine ───────────────────────────────────────────────────
-  const result = compareTicketToDraw(ticket, draw)
+
+  // Fetch per-draw prize table (null = use hardcoded amounts in prizeEngine)
+  const prizeTable = await getPrizeTable(draw.drawId)
+  if (prizeTable) {
+    console.log(`[TicketService] Using dynamic prize table for draw #${draw.drawId}`)
+  }
+
+  // Normalise to lines array — multi-line if ticket.lines exists, else single-line
+  const lines = (Array.isArray(ticket.lines) && ticket.lines.length > 0)
+    ? ticket.lines
+    : [{ numbers: ticket.numbers, strongNumber: ticket.strongNumber }]
+
+  const linesResults = lines.map(line => compareTicketToDraw(line, draw, prizeTable))
+  const totalWinnings = linesResults.reduce((sum, r) => sum + r.winnings, 0)
+
+  // Use the best-winning line's metadata for the top-level ticket fields
+  // (backward compatible: single-line tickets behave exactly as before)
+  const best = linesResults.reduce((a, b) => b.winnings > a.winnings ? b : a, linesResults[0])
 
   // ── 6. Persist result ─────────────────────────────────────────────────────
   await updateTicketCheckResult(ticketId, {
-    matchedCount:  result.matchedCount,
-    matchedStrong: result.matchedStrong,
-    tier:          result.tier,
-    prizeClass:    result.prizeClass,
-    prizeLabel:    result.prizeLabel,
-    winnings:      result.winnings,
+    matchedCount:  best.matchedCount,
+    matchedStrong: best.matchedStrong,
+    tier:          best.tier,
+    prizeClass:    best.prizeClass,
+    prizeLabel:    best.prizeLabel,
+    winnings:      totalWinnings,
     drawDate:      draw.date,
+    linesResults:  lines.length > 1
+      ? linesResults.map(r => ({ tier: r.tier ?? null, winnings: r.winnings }))
+      : undefined,
   })
 
   // ── 7. Run weekly settlement (non-fatal, idempotent) ───────────────────────
@@ -190,7 +211,7 @@ export async function checkTicket(ticketId, uid) {
     await runSettlement({
       ticketId,
       drawId:     draw.drawId,
-      winnings:   result.winnings,
+      winnings:   totalWinnings,
       ...(ticket.cost != null ? { ticketCost: ticket.cost } : {}),
     })
     console.log(`[TicketService] Settlement complete for draw #${draw.drawId}`)
@@ -202,21 +223,21 @@ export async function checkTicket(ticketId, uid) {
     }
   }
 
-  const status = result.winnings > 0 ? 'won' : 'lost'
+  const status = totalWinnings > 0 ? 'won' : 'lost'
 
   console.log(
-    `[TicketService] Check complete — ticketId=${ticketId}` +
-    `  status=${status}  winnings=₪${result.winnings}` +
-    `  tier=${result.tier ?? 'none'}`
+    `[TicketService] Check complete — ticketId=${ticketId}  lines=${lines.length}` +
+    `  status=${status}  totalWinnings=₪${totalWinnings}` +
+    `  bestTier=${best.tier ?? 'none'}`
   )
 
-  // Return the engine result alongside the key ticket fields so the caller
-  // has everything without needing a second Firestore read
   return {
     ticketId,
     drawId:        draw.drawId,
     drawDate:      draw.date,
-    ...result,
+    ...best,
+    winnings:      totalWinnings,
+    linesResults:  linesResults.map(r => ({ tier: r.tier ?? null, winnings: r.winnings })),
     status,
     checked:       true,
   }

@@ -9,6 +9,7 @@ import PendingScreen             from './screens/PendingScreen.jsx'
 import DashboardScreen           from './screens/DashboardScreen.jsx'
 import HistoryScreen             from './screens/HistoryScreen.jsx'
 import AdminTicketScreen         from './screens/AdminTicketScreen.jsx'
+import AdminDrawImportScreen    from './screens/AdminDrawImportScreen.jsx'
 import { createWeeklyTicket }    from './services/ticketApi.js'
 
 const TICKET_PRICE  = 6.00   // single combination, Pais official price
@@ -279,11 +280,15 @@ export default function App() {
         <button className={`view-btn ${view === 'tools'     ? 'active' : ''}`} onClick={() => setView('tools')}>Tools</button>
         <button className={`view-btn ${view === 'history'   ? 'active' : ''}`} onClick={() => setView('history')}>History</button>
         <button className={`view-btn ${view === 'ticket'    ? 'active' : ''}`} onClick={() => setView('ticket')}>Ticket</button>
+        {profile.role === 'admin' && (
+          <button className={`view-btn ${view === 'import' ? 'active' : ''}`} onClick={() => setView('import')}>Import</button>
+        )}
       </nav>
 
       {view === 'dashboard' && <DashboardScreen user={user} />}
       {view === 'history'   && <HistoryScreen user={user} />}
       {view === 'ticket'    && <AdminTicketScreen user={user} />}
+      {view === 'import'    && profile.role === 'admin' && <AdminDrawImportScreen user={user} />}
 
       {view === 'tools' && <main className="content">
 

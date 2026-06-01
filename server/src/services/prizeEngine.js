@@ -61,23 +61,27 @@ function buildTierKey(mainMatchCount, strongMatched) {
 // ── Core comparison ────────────────────────────────────────────────────────
 
 /**
- * Compare a single saved ticket against one draw result and calculate the prize.
+ * Compare a single ticket line against one draw and calculate the prize.
  *
  * @param {{ numbers: number[], strongNumber: number }} ticket
  * @param {{ numbers: number[], strongNumber: number, drawId: number, date: string }} draw
+ * @param {Record<string,number>|null} [prizeTable]
+ *   Optional per-draw prize amounts (keyed by tier, e.g. `{ '3': 15, '3+s': 56 }`).
+ *   When provided, these ILS values override the hardcoded PRIZE_TABLE amounts.
+ *   When omitted, the hardcoded PRIZE_TABLE values are used unchanged.
  *
  * @returns {{
- *   matchedNumbers: number[],   // which main numbers hit
- *   matchedCount:   number,     // 0–6
+ *   matchedNumbers: number[],
+ *   matchedCount:   number,
  *   matchedStrong:  boolean,
- *   tier:           string|null,  // PRIZE_TABLE key, e.g. '4+s' — null = no prize
- *   prizeClass:     number|null,  // 1–8, null = no prize
- *   prizeLabel:     string|null,  // human-readable class name
- *   winnings:       number,       // ILS amount (0 = no prize)
- *   isJackpot:      boolean,      // true = Class 1; actual amount may be higher
+ *   tier:           string|null,
+ *   prizeClass:     number|null,
+ *   prizeLabel:     string|null,
+ *   winnings:       number,
+ *   isJackpot:      boolean,
  * }}
  */
-export function compareTicketToDraw(ticket, draw) {
+export function compareTicketToDraw(ticket, draw, prizeTable = null) {
   if (!ticket?.numbers || !draw?.numbers) {
     throw new Error('compareTicketToDraw: both ticket.numbers and draw.numbers are required')
   }
@@ -97,6 +101,11 @@ export function compareTicketToDraw(ticket, draw) {
   const tierKey  = buildTierKey(matchedCount, matchedStrong)
   const prizeRow = tierKey ? PRIZE_TABLE[tierKey] : null
 
+  // Use admin-entered amount when a per-draw table is provided; fall back to hardcoded.
+  const winnings = tierKey
+    ? (prizeTable?.[tierKey] ?? prizeRow?.amount ?? 0)
+    : 0
+
   const result = {
     matchedNumbers,
     matchedCount,
@@ -104,15 +113,15 @@ export function compareTicketToDraw(ticket, draw) {
     tier:       tierKey,
     prizeClass: prizeRow?.class   ?? null,
     prizeLabel: prizeRow?.label   ?? null,
-    winnings:   prizeRow?.amount  ?? 0,
+    winnings,
     isJackpot:  prizeRow?.isJackpot ?? false,
   }
 
-  if (prizeRow) {
+  if (tierKey) {
     console.log(
-      `[PrizeEngine] Prize: ${prizeRow.label}` +
-      `  tier=${tierKey}  class=${prizeRow.class}  winnings=₪${prizeRow.amount}` +
-      `${prizeRow.isJackpot ? '  (jackpot floor — actual may be higher)' : ''}`
+      `[PrizeEngine] Prize: ${prizeRow?.label ?? tierKey}` +
+      `  tier=${tierKey}  winnings=₪${winnings}` +
+      `${prizeTable ? '  (dynamic table)' : '  (hardcoded table)'}`
     )
   } else {
     console.log(`[PrizeEngine] No prize (matched ${matchedCount} main${matchedStrong ? ' + strong' : ''})`)

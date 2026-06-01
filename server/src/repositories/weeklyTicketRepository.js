@@ -20,15 +20,23 @@ import { Timestamp }               from 'firebase-admin/firestore'
 
 const COLLECTION = 'weekly_tickets'
 
-export async function saveWeeklyTicket({ numbers, strongNumber, cost, notes, createdBy, effectiveFromDrawId }) {
+export async function saveWeeklyTicket({ numbers, strongNumber, lines, cost, notes, createdBy, effectiveFromDrawId }) {
   if (!isFirestoreReady()) return null
   const db     = getDb()
   const docRef = db.collection(COLLECTION).doc()
 
+  // Normalise: if lines are provided use them; derive the flat fields from line 1
+  // so every existing reader (pipeline, history display) keeps working.
+  const hasLines  = Array.isArray(lines) && lines.length > 0
+  const firstLine = hasLines ? lines[0] : null
+
   const ticket = {
     id:                  docRef.id,
-    numbers:             [...numbers].sort((a, b) => a - b),
-    strongNumber,
+    numbers:             hasLines
+                           ? [...firstLine.numbers].sort((a, b) => a - b)
+                           : [...numbers].sort((a, b) => a - b),
+    strongNumber:        hasLines ? firstLine.strongNumber : strongNumber,
+    ...(hasLines && { lines }),   // only stored when multi-line
     cost:                cost ?? 70,
     active:              true,
     notes:               notes ?? null,

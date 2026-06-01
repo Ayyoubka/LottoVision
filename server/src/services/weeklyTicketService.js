@@ -39,6 +39,18 @@ function validate({ numbers, strongNumber }) {
   return null
 }
 
+function validateLines(lines) {
+  if (!Array.isArray(lines) || lines.length === 0)
+    return 'At least one line is required'
+  if (lines.length > 14)
+    return 'Maximum 14 lines allowed'
+  for (let i = 0; i < lines.length; i++) {
+    const err = validate({ numbers: lines[i].numbers, strongNumber: lines[i].strongNumber })
+    if (err) return `Line ${i + 1}: ${err}`
+  }
+  return null
+}
+
 function guardFirestore() {
   if (!isFirestoreReady())
     throw Object.assign(new Error('Firestore not available'), { code: 'FIRESTORE_UNAVAILABLE' })
@@ -55,19 +67,29 @@ function guardFirestore() {
  * @returns {{ weeklyTicket, ticket }}
  */
 export async function createGroupWeeklyTicket({
-  numbers, strongNumber, cost, notes, createdBy, effectiveFromDrawId,
+  numbers, strongNumber, lines, cost, notes, createdBy, effectiveFromDrawId,
 }) {
   guardFirestore()
 
-  const err = validate({ numbers, strongNumber })
-  if (err) throw Object.assign(new Error(err), { code: 'VALIDATION_ERROR' })
+  const hasLines = Array.isArray(lines) && lines.length > 0
+
+  if (hasLines) {
+    const err = validateLines(lines)
+    if (err) throw Object.assign(new Error(err), { code: 'VALIDATION_ERROR' })
+  } else {
+    const err = validate({ numbers, strongNumber })
+    if (err) throw Object.assign(new Error(err), { code: 'VALIDATION_ERROR' })
+  }
 
   await deactivateAllWeeklyTickets()
   await archiveActiveTickets()
 
+  const normalised = hasLines
+    ? { lines: lines.map(l => ({ numbers: [...l.numbers].sort((a, b) => a - b), strongNumber: Number(l.strongNumber) })) }
+    : { numbers: numbers.map(Number), strongNumber: Number(strongNumber) }
+
   const weeklyTicket = await saveWeeklyTicket({
-    numbers:             numbers.map(Number),
-    strongNumber:        Number(strongNumber),
+    ...normalised,
     cost:                cost != null ? Number(cost) : 70,
     notes:               notes ?? null,
     createdBy,
@@ -75,18 +97,17 @@ export async function createGroupWeeklyTicket({
   })
 
   const ticket = await saveTicket({
-    uid:          createdBy,
-    drawId:       effectiveFromDrawId != null ? Number(effectiveFromDrawId) : null,
-    numbers:      numbers.map(Number),
-    strongNumber: Number(strongNumber),
-    active:       true,
-    cost:         cost != null ? Number(cost) : 70,
+    uid:    createdBy,
+    drawId: effectiveFromDrawId != null ? Number(effectiveFromDrawId) : null,
+    ...normalised,
+    active: true,
+    cost:   cost != null ? Number(cost) : 70,
   })
 
   console.log(
     `[WeeklyTicketService] Created weekly_ticket ${weeklyTicket.id}` +
     `  ticket=${ticket.id}  by=${createdBy}` +
-    `  cost=₪${weeklyTicket.cost}`
+    `  lines=${hasLines ? lines.length : 1}  cost=₪${weeklyTicket.cost}`
   )
 
   return { weeklyTicket, ticket }
@@ -96,7 +117,7 @@ export async function createGroupWeeklyTicket({
  * Partially update a weekly ticket's editable fields.
  * If numbers or strongNumber change, validation is re-run.
  */
-export async function patchGroupWeeklyTicket(id, { numbers, strongNumber, cost, notes }) {
+export async function patchGroupWeeklyTicket(id, { numbers, strongNumber, lines, cost, notes }) {
   guardFirestore()
 
   const existing = await getWeeklyTicketById(id)
@@ -104,7 +125,14 @@ export async function patchGroupWeeklyTicket(id, { numbers, strongNumber, cost, 
 
   const patch = {}
 
-  if (numbers !== undefined || strongNumber !== undefined) {
+  if (Array.isArray(lines) && lines.length > 0) {
+    const err = validateLines(lines)
+    if (err) throw Object.assign(new Error(err), { code: 'VALIDATION_ERROR' })
+    const normalised = lines.map(l => ({ numbers: [...l.numbers].sort((a, b) => a - b), strongNumber: Number(l.strongNumber) }))
+    patch.lines        = normalised
+    patch.numbers      = normalised[0].numbers
+    patch.strongNumber = normalised[0].strongNumber
+  } else if (numbers !== undefined || strongNumber !== undefined) {
     const n   = numbers !== undefined ? numbers.map(Number) : existing.numbers
     const s   = strongNumber !== undefined ? Number(strongNumber) : existing.strongNumber
     const err = validate({ numbers: n, strongNumber: s })
@@ -140,6 +168,7 @@ export async function activateGroupWeeklyTicket(id, createdBy) {
     drawId:       null,
     numbers:      existing.numbers,
     strongNumber: existing.strongNumber,
+    lines:        existing.lines ?? null,
     active:       true,
     cost:         existing.cost,
   })

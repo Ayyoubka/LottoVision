@@ -91,17 +91,17 @@ router.get('/weekly/history', async (req, res) => {
  * Response 201: { weeklyTicket, ticket }
  */
 router.post('/weekly', async (req, res) => {
-  const { numbers, strongNumber, cost, notes, effectiveFromDrawId } = req.body ?? {}
+  const { numbers, strongNumber, lines, cost, notes, effectiveFromDrawId } = req.body ?? {}
 
   console.log(
     `[POST /api/tickets/weekly] uid=${req.uid}` +
-    `  numbers=${JSON.stringify(numbers)}  strong=${strongNumber}` +
+    `  lines=${lines ? lines.length : 'none'}  numbers=${JSON.stringify(numbers)}  strong=${strongNumber}` +
     `  cost=${cost ?? 'default'}  notes=${notes ? 'yes' : 'none'}`
   )
 
   try {
     const result = await createGroupWeeklyTicket({
-      numbers, strongNumber, cost, notes, effectiveFromDrawId,
+      numbers, strongNumber, lines, cost, notes, effectiveFromDrawId,
       createdBy: req.uid,
     })
     res.status(201).json(result)
@@ -122,11 +122,11 @@ router.post('/weekly', async (req, res) => {
  * Response 200: updated WeeklyTicket
  */
 router.patch('/weekly/:id', async (req, res) => {
-  const { id }                               = req.params
-  const { numbers, strongNumber, cost, notes } = req.body ?? {}
+  const { id }                                       = req.params
+  const { numbers, strongNumber, lines, cost, notes } = req.body ?? {}
 
   try {
-    const updated = await patchGroupWeeklyTicket(id, { numbers, strongNumber, cost, notes })
+    const updated = await patchGroupWeeklyTicket(id, { numbers, strongNumber, lines, cost, notes })
     res.json(updated)
   } catch (err) {
     console.error(`[PATCH /api/tickets/weekly/${id}] ${err.message}`)
