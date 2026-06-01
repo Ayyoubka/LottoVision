@@ -74,7 +74,7 @@ export async function ensureGroupMembers() {
  * @throws FIRESTORE_UNAVAILABLE | NO_MEMBERS
  *         Silently skips on ALREADY_SETTLED (idempotent re-run).
  */
-export async function runSettlement({ ticketId, drawId, winnings, ticketCost = GROUP_TICKET_COST }) {
+export async function runSettlement({ ticketId, drawId, winnings, ticketCost = GROUP_TICKET_COST, linesBreakdown }) {
   if (!isFirestoreReady()) {
     throw Object.assign(new Error('Firestore not available'), { code: 'FIRESTORE_UNAVAILABLE' })
   }
@@ -140,8 +140,9 @@ export async function runSettlement({ ticketId, drawId, winnings, ticketCost = G
     ticketId,
     ticketCost,
     winnings,
-    netResult: winnings - ticketCost,
+    netResult:      winnings - ticketCost,
     memberResults,
+    linesBreakdown,   // optional — absent on single-line or no-win settlements
   })
 
   console.log(

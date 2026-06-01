@@ -72,6 +72,7 @@ export async function runLatestPipeline(source = 'manual') {
     winnings:             0,
     netResult:            0,
     memberDelta:          0,
+    linesBreakdown:       [],
     error:                null,
     source,
   }
@@ -159,9 +160,10 @@ export async function runLatestPipeline(source = 'manual') {
       console.log(`[Pipeline] [${ts()}] Stage 3 SKIP — ticket already checked  winnings=₪${result.winnings}`)
     } else {
       console.log(`[Pipeline] [${ts()}] Stage 3 START — checking ticket ${ticket.id} against draw #${draw.drawId}`)
-      const checkResult    = await checkTicket(ticket.id, ticket.uid)
-      result.ticketChecked = true
-      result.winnings      = checkResult.winnings
+      const checkResult        = await checkTicket(ticket.id, ticket.uid)
+      result.ticketChecked     = true
+      result.winnings          = checkResult.winnings
+      result.linesBreakdown    = checkResult.linesBreakdown ?? []
       result.settlementCreated = true
       console.log(
         `[Pipeline] [${ts()}] Stage 3 DONE — status=${checkResult.status}` +
@@ -191,8 +193,12 @@ export async function runLatestPipeline(source = 'manual') {
     // ── Populate reporting fields from settlement doc ──────────────────────
     const settlement = await getLatestSettlement()
     if (settlement?.drawId === draw.drawId) {
-      result.memberDelta = settlement.memberResults?.[0]?.delta ?? 0
-      result.netResult   = settlement.netResult
+      result.memberDelta    = settlement.memberResults?.[0]?.delta ?? 0
+      result.netResult      = settlement.netResult
+      // Populate linesBreakdown from settlement when ticket was already checked
+      if (!result.linesBreakdown?.length && settlement.linesBreakdown?.length) {
+        result.linesBreakdown = settlement.linesBreakdown
+      }
     } else {
       result.memberDelta = Math.round(((result.winnings - GROUP_TICKET_COST) / 7) * 100) / 100
       result.netResult   = result.winnings - GROUP_TICKET_COST
@@ -265,6 +271,7 @@ export async function runPipelineForDraw(drawId, source = 'github-actions') {
     winnings:             0,
     netResult:            0,
     memberDelta:          0,
+    linesBreakdown:       [],
     error:                null,
     source,
   }
@@ -339,9 +346,10 @@ export async function runPipelineForDraw(drawId, source = 'github-actions') {
       console.log(`[Pipeline] [${ts()}] Stage 3 SKIP — ticket already checked  winnings=₪${result.winnings}`)
     } else {
       console.log(`[Pipeline] [${ts()}] Stage 3 START — checking ticket ${ticket.id} against draw #${draw.drawId}`)
-      const checkResult    = await checkTicket(ticket.id, ticket.uid)
-      result.ticketChecked = true
-      result.winnings      = checkResult.winnings
+      const checkResult        = await checkTicket(ticket.id, ticket.uid)
+      result.ticketChecked     = true
+      result.winnings          = checkResult.winnings
+      result.linesBreakdown    = checkResult.linesBreakdown ?? []
       result.settlementCreated = true
       console.log(
         `[Pipeline] [${ts()}] Stage 3 DONE — status=${checkResult.status}` +

@@ -29,7 +29,7 @@ const COLLECTION = 'settlements'
 // ── Write ──────────────────────────────────────────────────────────────────
 
 export async function saveSettlement({
-  drawId, ticketId, ticketCost, winnings, netResult, memberResults,
+  drawId, ticketId, ticketCost, winnings, netResult, memberResults, linesBreakdown,
 }) {
   const db  = getDb()
   const ref = db.collection(COLLECTION).doc()
@@ -43,6 +43,8 @@ export async function saveSettlement({
     netResult,
     checkedAt: Timestamp.now(),
     memberResults,
+    // Only written when present — absent on old settlements (backward compatible)
+    ...(Array.isArray(linesBreakdown) && linesBreakdown.length > 0 && { linesBreakdown }),
   }
 
   await ref.set(settlement)

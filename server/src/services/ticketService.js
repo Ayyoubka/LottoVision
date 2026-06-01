@@ -185,8 +185,18 @@ export async function checkTicket(ticketId, uid) {
     ? ticket.lines
     : [{ numbers: ticket.numbers, strongNumber: ticket.strongNumber }]
 
-  const linesResults = lines.map(line => compareTicketToDraw(line, draw, prizeTable))
+  const linesResults  = lines.map((line, i) => ({
+    lineNumber: i + 1,
+    ...compareTicketToDraw(line, draw, prizeTable),
+  }))
   const totalWinnings = linesResults.reduce((sum, r) => sum + r.winnings, 0)
+
+  // Winning lines only — stored in the settlement record for history display
+  const linesBreakdown = linesResults
+    .filter(r => r.winnings > 0)
+    .map(({ lineNumber, matchedCount, matchedStrong, tier, prizeLabel, winnings }) => ({
+      lineNumber, matchedCount, matchedStrong, tier: tier ?? null, prizeLabel: prizeLabel ?? null, winnings,
+    }))
 
   // Use the best-winning line's metadata for the top-level ticket fields
   // (backward compatible: single-line tickets behave exactly as before)
@@ -210,8 +220,9 @@ export async function checkTicket(ticketId, uid) {
   try {
     await runSettlement({
       ticketId,
-      drawId:     draw.drawId,
-      winnings:   totalWinnings,
+      drawId:        draw.drawId,
+      winnings:      totalWinnings,
+      linesBreakdown,                               // stored in settlement record
       ...(ticket.cost != null ? { ticketCost: ticket.cost } : {}),
     })
     console.log(`[TicketService] Settlement complete for draw #${draw.drawId}`)
@@ -233,13 +244,14 @@ export async function checkTicket(ticketId, uid) {
 
   return {
     ticketId,
-    drawId:        draw.drawId,
-    drawDate:      draw.date,
+    drawId:          draw.drawId,
+    drawDate:        draw.date,
     ...best,
-    winnings:      totalWinnings,
-    linesResults:  linesResults.map(r => ({ tier: r.tier ?? null, winnings: r.winnings })),
+    winnings:        totalWinnings,
+    linesResults:    linesResults.map(r => ({ tier: r.tier ?? null, winnings: r.winnings })),
+    linesBreakdown,  // winning lines — for pipeline result + display
     status,
-    checked:       true,
+    checked:         true,
   }
 }
 

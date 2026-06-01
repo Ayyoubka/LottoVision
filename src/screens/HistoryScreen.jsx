@@ -102,6 +102,27 @@ function SettlementRow({ s }) {
             </div>
           </div>
 
+          {/* Winning lines breakdown */}
+          {s.linesBreakdown?.length > 0 && (
+            <div className="db-history-breakdown">
+              <p className="db-breakdown-title">Winning Lines</p>
+              {s.linesBreakdown.map((line, i) => (
+                <div key={i} className="db-breakdown-row">
+                  <div className="db-breakdown-left">
+                    <span className="db-breakdown-line">Line {line.lineNumber}</span>
+                    <span className="db-breakdown-detail">
+                      {line.matchedCount} matched{line.matchedStrong ? ' + strong' : ''}
+                    </span>
+                    {line.prizeLabel && (
+                      <span className="db-breakdown-class">{line.prizeLabel}</span>
+                    )}
+                  </div>
+                  <span className="db-breakdown-prize">+₪{line.winnings.toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
           {s.memberResults?.length > 0 && (
             <div className="db-history-members">
               {s.memberResults.map(m => (

@@ -224,6 +224,27 @@ function ImportResult({ result, onReset }) {
         )}
       </div>
 
+      {/* Winning lines breakdown */}
+      {p.linesBreakdown?.length > 0 && (
+        <div className="adm-breakdown">
+          <p className="adm-breakdown-title">Winning Lines</p>
+          {p.linesBreakdown.map((line, i) => (
+            <div key={i} className="adm-breakdown-row">
+              <div className="adm-breakdown-left">
+                <span className="adm-breakdown-line">Line {line.lineNumber}</span>
+                <span className="adm-breakdown-detail">
+                  {line.matchedCount} matched{line.matchedStrong ? ' + strong' : ''}
+                </span>
+                {line.prizeLabel && (
+                  <span className="adm-breakdown-class">{line.prizeLabel}</span>
+                )}
+              </div>
+              <span className="adm-breakdown-prize">+₪{line.winnings.toLocaleString()}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       <button className="adm-btn adm-btn-cancel" onClick={onReset} style={{ marginTop: '12px' }}>
         Import Another Draw
       </button>
