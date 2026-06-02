@@ -16,7 +16,7 @@ import NotificationsCard   from '../components/dashboard/NotificationsCard.jsx'
 import NextDrawCard        from '../components/dashboard/NextDrawCard.jsx'
 import '../components/dashboard/dashboard.css'
 
-export default function DashboardScreen({ user }) {
+export default function DashboardScreen({ user, isAdmin }) {
   const [draw,           setDraw]           = useState(null)
   const [activeTicket,   setActiveTicket]   = useState(undefined) // undefined = not yet loaded
   const [members,        setMembers]        = useState(null)
@@ -127,7 +127,7 @@ export default function DashboardScreen({ user }) {
       <PipelineStatusCard
         status={pipelineStatus}
         running={pipelineRunning}
-        onRun={handleRunPipeline}
+        onRun={isAdmin ? handleRunPipeline : undefined}
         history={pipelineHistory}
       />
 
@@ -147,6 +147,7 @@ export default function DashboardScreen({ user }) {
         members={members}
         loading={initialLoading && !members}
         user={user}
+        isAdmin={isAdmin}
         onBalanceUpdated={setMembers}
         settlement={settlement}
       />

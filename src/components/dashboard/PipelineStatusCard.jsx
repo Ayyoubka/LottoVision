@@ -116,16 +116,18 @@ export default function PipelineStatusCard({ status, running, onRun, history }) 
         </div>
       )}
 
-      {/* Run button */}
-      <button
-        className="db-pipeline-run-btn"
-        onClick={onRun}
-        disabled={running}
-      >
-        {running
-          ? <span className="loading-dots">Running pipeline<span>…</span></span>
-          : '▶ Run Weekly Pipeline'}
-      </button>
+      {/* Run button — admin only */}
+      {onRun && (
+        <button
+          className="db-pipeline-run-btn"
+          onClick={onRun}
+          disabled={running}
+        >
+          {running
+            ? <span className="loading-dots">Running pipeline<span>…</span></span>
+            : '▶ Run Weekly Pipeline'}
+        </button>
+      )}
     </div>
   )
 }

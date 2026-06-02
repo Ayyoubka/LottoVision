@@ -7,6 +7,7 @@
 
 import { Router }           from 'express'
 import { verifyToken }      from '../middleware/verifyToken.js'
+import { requireAdmin }     from '../middleware/requireAdmin.js'
 import { saveDeposit, getRecentDeposits } from '../repositories/depositsRepository.js'
 import { applyDeposit, getActiveMembers } from '../repositories/groupMembersRepository.js'
 
@@ -25,7 +26,7 @@ router.use(verifyToken)
  *   members: MemberDocument[]   ← refreshed list for immediate UI update
  * }
  */
-router.post('/', async (req, res) => {
+router.post('/', requireAdmin, async (req, res) => {
   const { memberId, memberName, amount, note } = req.body ?? {}
 
   console.log(`[POST /api/deposits] uid=${req.uid}  memberId=${memberId}  amount=${amount}`)

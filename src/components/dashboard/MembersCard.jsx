@@ -2,7 +2,7 @@ import { useState }             from 'react'
 import { updateMemberBalance }  from '../../services/settlementApi.js'
 import './dashboard.css'
 
-export default function MembersCard({ members, loading, onBalanceUpdated, user, settlement }) {
+export default function MembersCard({ members, loading, onBalanceUpdated, user, isAdmin, settlement }) {
   const [editingId, setEditingId] = useState(null)
   const [editValue, setEditValue] = useState('')
   const [savingId,  setSavingId]  = useState(null)
@@ -90,11 +90,13 @@ export default function MembersCard({ members, loading, onBalanceUpdated, user, 
                         <span className={`db-member-balance ${balClass(m.balance)}`}>
                           {fmtBalance(m.balance)}
                         </span>
-                        <button
-                          className="db-member-edit-btn"
-                          onClick={() => startEdit(m)}
-                          title="Edit balance"
-                        >✎</button>
+                        {isAdmin && (
+                          <button
+                            className="db-member-edit-btn"
+                            onClick={() => startEdit(m)}
+                            title="Edit balance"
+                          >✎</button>
+                        )}
                       </div>
                     )}
                   </div>

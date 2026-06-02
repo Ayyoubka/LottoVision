@@ -280,7 +280,9 @@ export default function App() {
         <button className={`view-btn ${view === 'dashboard' ? 'active' : ''}`} onClick={() => setView('dashboard')}>Dashboard</button>
         <button className={`view-btn ${view === 'tools'     ? 'active' : ''}`} onClick={() => setView('tools')}>Tools</button>
         <button className={`view-btn ${view === 'history'   ? 'active' : ''}`} onClick={() => setView('history')}>History</button>
-        <button className={`view-btn ${view === 'ticket'    ? 'active' : ''}`} onClick={() => setView('ticket')}>Ticket</button>
+        {profile.role === 'admin' && (
+          <button className={`view-btn ${view === 'ticket'    ? 'active' : ''}`} onClick={() => setView('ticket')}>Ticket</button>
+        )}
         {profile.role === 'admin' && (
           <button className={`view-btn ${view === 'import'    ? 'active' : ''}`} onClick={() => setView('import')}>Import</button>
         )}
@@ -289,9 +291,9 @@ export default function App() {
         )}
       </nav>
 
-      {view === 'dashboard' && <DashboardScreen user={user} />}
+      {view === 'dashboard' && <DashboardScreen user={user} isAdmin={profile.role === 'admin'} />}
       {view === 'history'   && <HistoryScreen user={user} />}
-      {view === 'ticket'    && <AdminTicketScreen user={user} />}
+      {view === 'ticket'    && profile.role === 'admin' && <AdminTicketScreen user={user} />}
       {view === 'import'    && profile.role === 'admin' && <AdminDrawImportScreen user={user} />}
       {view === 'deposits'  && profile.role === 'admin' && <AdminDepositsScreen   user={user} />}
 

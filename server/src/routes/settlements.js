@@ -9,6 +9,7 @@
 
 import { Router }             from 'express'
 import { verifyToken }        from '../middleware/verifyToken.js'
+import { requireAdmin }       from '../middleware/requireAdmin.js'
 import { getActiveMembers, setMemberBalance } from '../repositories/groupMembersRepository.js'
 import {
   getLatestSettlement,
@@ -62,7 +63,7 @@ router.get('/', async (req, res) => {
  * Body: { balance: number }
  * Response 200: { updated: true, members: MemberDocument[] }
  */
-router.patch('/members/:memberId/balance', async (req, res) => {
+router.patch('/members/:memberId/balance', requireAdmin, async (req, res) => {
   const { memberId } = req.params
   const { balance }  = req.body ?? {}
 
@@ -87,7 +88,7 @@ router.patch('/members/:memberId/balance', async (req, res) => {
  * Idempotent — safe to call multiple times.
  * Creates default members if none exist; returns current member list.
  */
-router.post('/seed-members', async (req, res) => {
+router.post('/seed-members', requireAdmin, async (req, res) => {
   console.log(`[POST /api/settlements/seed-members] uid=${req.uid}`)
   try {
     await ensureGroupMembers()

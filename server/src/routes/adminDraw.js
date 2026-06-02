@@ -11,12 +11,14 @@
 
 import { Router }             from 'express'
 import { verifyToken }        from '../middleware/verifyToken.js'
+import { requireAdmin }       from '../middleware/requireAdmin.js'
 import { saveDraw }           from '../services/drawRepository.js'
 import { savePrizeTable, REQUIRED_KEYS } from '../repositories/prizeTableRepository.js'
 import { runPipelineForDraw } from '../services/drawPipelineService.js'
 
 const router = Router()
 router.use(verifyToken)
+router.use(requireAdmin)
 
 // ── POST /api/admin/import-draw ───────────────────────────────────────────
 router.post('/import-draw', async (req, res) => {

@@ -10,6 +10,7 @@
 
 import { Router }      from 'express'
 import { verifyToken } from '../middleware/verifyToken.js'
+import { requireAdmin } from '../middleware/requireAdmin.js'
 import { createTicket, getMyTickets, checkTicket } from '../services/ticketService.js'
 import { getActiveTicket } from '../repositories/ticketRepository.js'
 import {
@@ -90,7 +91,7 @@ router.get('/weekly/history', async (req, res) => {
  * Body: { numbers, strongNumber, cost?, notes?, effectiveFromDrawId? }
  * Response 201: { weeklyTicket, ticket }
  */
-router.post('/weekly', async (req, res) => {
+router.post('/weekly', requireAdmin, async (req, res) => {
   const { numbers, strongNumber, lines, cost, notes, effectiveFromDrawId } = req.body ?? {}
 
   console.log(
@@ -121,7 +122,7 @@ router.post('/weekly', async (req, res) => {
  * Body: partial { numbers?, strongNumber?, cost?, notes? }
  * Response 200: updated WeeklyTicket
  */
-router.patch('/weekly/:id', async (req, res) => {
+router.patch('/weekly/:id', requireAdmin, async (req, res) => {
   const { id }                                       = req.params
   const { numbers, strongNumber, lines, cost, notes } = req.body ?? {}
 
@@ -142,7 +143,7 @@ router.patch('/weekly/:id', async (req, res) => {
  * Deactivates all others and creates a fresh tickets entry.
  * Response 200: { weeklyTicket, ticket }
  */
-router.post('/weekly/:id/activate', async (req, res) => {
+router.post('/weekly/:id/activate', requireAdmin, async (req, res) => {
   const { id } = req.params
   try {
     const result = await activateGroupWeeklyTicket(id, req.uid)
@@ -159,7 +160,7 @@ router.post('/weekly/:id/activate', async (req, res) => {
  * Deactivate a specific weekly ticket (no active ticket until the next one is created).
  * Response 200: updated WeeklyTicket
  */
-router.post('/weekly/:id/deactivate', async (req, res) => {
+router.post('/weekly/:id/deactivate', requireAdmin, async (req, res) => {
   const { id } = req.params
   try {
     const updated = await deactivateGroupWeeklyTicket(id)

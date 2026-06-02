@@ -7,6 +7,7 @@
 
 import { Router }               from 'express'
 import { verifyToken }          from '../middleware/verifyToken.js'
+import { requireAdmin }         from '../middleware/requireAdmin.js'
 import { runLatestPipeline }    from '../services/drawPipelineService.js'
 import { getLastPipelineRun }   from '../repositories/pipelineRepository.js'
 import { getPipelineHistory }   from '../repositories/pipelineLogRepository.js'
@@ -27,7 +28,7 @@ router.use(verifyToken)
  * Response 200: PipelineResult
  * Response 500: { error }  (only on unhandled system errors)
  */
-router.post('/run-latest', async (req, res) => {
+router.post('/run-latest', requireAdmin, async (req, res) => {
   console.log(`[POST /api/pipeline/run-latest] uid=${req.uid}`)
   try {
     const result = await runLatestPipeline()

@@ -8,6 +8,7 @@
 
 import { Router }    from 'express'
 import { verifyToken } from '../middleware/verifyToken.js'
+import { requireAdmin } from '../middleware/requireAdmin.js'
 import {
   isTelegramConfigured,
   sendTestMessage,
@@ -29,7 +30,7 @@ router.use(verifyToken)
  *
  * Response 200: { results: { channel, ok, error? }[] }
  */
-router.post('/test', async (req, res) => {
+router.post('/test', requireAdmin, async (req, res) => {
   console.log(`[POST /api/notifications/test] uid=${req.uid}`)
 
   const results = []
